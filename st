@@ -688,6 +688,18 @@ MiscTab:AddButton({
     end
 })
 
+function getTimeAndLocation()
+    local dayOfWeek = os.date("%A")
+    local time = os.date("%H:%M:%S")
+    local country = os.getenv("USER_COUNTRY") or "Unknown"
+    local flagImagePath = "flags/" .. country .. ".png"
+    MiscTab:AddLabel("Today: " .. dayOfWeek .. " Time: " .. time .. " Country: " .. country)
+    MiscTab:AddImage(flagImagePath)
+end
+
+getTimeAndLocation()
+
+
 MiscTab:AddLabel("Arm Controls")
 
 local function applyArmMovement(player, x, y, z)
