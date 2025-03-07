@@ -687,28 +687,154 @@ MiscTab:AddButton({
         Dropdown:SetOptions(GetPlayerOptions())
     end
 })
+
+MiscTab:AddLabel("Antis")
+local antiRagdollEnabled = false
+local antiRagdollThread
+
+MiscTab:AddToggle({
+    Name = "AntiRagdoll", 
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            if not antiRagdollEnabled then
+                antiRagdollEnabled = true
+                antiRagdollThread = spawn(function()
+                    while antiRagdollEnabled do
+                        wait()
+
+                        pcall(function()
+                            local plr = game.Players.LocalPlayer
+                            if plr and plr.Character then
+                                if plr.Character:FindFirstChild("Ragdoll") and plr.Character.Ragdoll.Value then
+                                    plr.Character.GetUpEvent:FireServer()
+                                end
+                            end
+                        end)
+
+                        pcall(function()
+                            local plr = game.Players.LocalPlayer
+                            if plr.Character then
+                                for _, accessory in next, plr.Character:GetChildren() do
+                                    pcall(function()
+                                        if accessory:IsA("Accessory") and accessory.Name ~= "FakeAccessory" and accessory:FindFirstChild("Handle") then
+                                            local weld = accessory.Handle:FindFirstChildOfClass("Weld")
+                                            if weld then
+                                                local clone = accessory:Clone()
+                                                accessory:Destroy()
+                                                clone.Name = "FakeAccessory"
+                                                clone.Parent = plr.Character
+                                            end
+                                        end
+                                    end)
+
+                                    pcall(function()
+                                        if accessory.Name == "VelocityDamage" or accessory.Name == "GetPicked" then
+                                            accessory:Destroy()
+                                        end
+                                    end)
+                                end
+                            end
+                        end)
+                    end
+                end)
+            end
+        else
+            antiRagdollEnabled = false
+            if antiRagdollThread then
+                antiRagdollThread = nil
+            end
+        end
+    end    
+})
+
+MiscTab:AddToggle({ 
+    Name = "AntiSpinner", 
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            repeat wait() until plr.Character:FindFirstChild("HumanoidRootPart") and plr.Character:FindFirstChild("Head")
+            for _, v in next, plr.Character:GetChildren() do
+                if v:IsA("BasePart") then
+                    v.CustomPhysicalProperties = prop1000
+                end
+            end
+        else
+            for _, v in next, plr.Character:GetChildren() do
+                if v:IsA("BasePart") then
+                    v.CustomPhysicalProperties = nil
+                end
+            end
+        end
+    end    
+})
+
+local AutoRespawnEnabled = false
+local plr = game.Players.LocalPlayer
+local vim = game:GetService("VirtualInputManager")
+
+local function respawn()
+    pcall(function()
+        local b = plr.PlayerGui.DeathMenu.Frame.Button.TextButton
+        b.Position = UDim2.new(0,0,0,0)
+        b.Size = UDim2.new(1,0,1,0)
+        b.Text = ''
+        b.BackgroundTransparency = 1
+        b.ZIndex = (2^31-1)
+        local s = Instance.new('ScreenGui', game:GetService('CoreGui'))
+        b.Parent = s
+        vim:SendMouseButtonEvent(b.AbsolutePosition.X + b.AbsoluteSize.X / 2, b.AbsolutePosition.Y + b.AbsoluteSize.Y / 2, 0, true, game, 0)
+        vim:SendMouseButtonEvent(b.AbsolutePosition.X + b.AbsoluteSize.X / 2, b.AbsolutePosition.Y + b.AbsoluteSize.Y / 2, 0, false, game, 0)
+        spawn(function()
+            wait()
+            s:Destroy()
+        end)
+    end)
+end
+
+MiscTab:AddToggle({
+    Name = "AutoRespawn",
+    Default = false,
+    Callback = function(Value)
+        AutoRespawnEnabled = Value
+    end
+})
+
+plr.CharacterAdded:Connect(function(character)
+    if AutoRespawnEnabled then
+        local humanoid = character:WaitForChild("Humanoid")
+        humanoid.Died:Connect(function()
+            respawn()
+        end)
+    end
+end)
+
 local player = game.Players.LocalPlayer
-local playerName = player.Name
-local displayName = player.DisplayName
+local userToggle = false
 
-local dateTime = os.date("*t")
-local currentTime = os.date("%X")
-local currentDay = os.date("%A")
+function ToggleAntiVoid(Value)
+    userToggle = Value
+end
 
-local daysOfTheWeek = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}
-local currentDayIndex = table.find(daysOfTheWeek, currentDay)
-local nextDay = daysOfTheWeek[(currentDayIndex % 7) + 1]
+game:GetService("RunService").Heartbeat:Connect(function()
+    if userToggle then
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local humanoidRootPart = player.Character.HumanoidRootPart
+            if humanoidRootPart.Position.Y < -100 then
+                humanoidRootPart.CFrame = humanoidRootPart.CFrame + Vector3.new(0, -5, 0)
+            end
+        end
+    end
+end)
 
-local weather = "Sunny"
+MiscTab:AddToggle({
+    Name = "AntiVoid", 
+    Default = false,
+    Callback = function(Value)
+        ToggleAntiVoid(Value)
+    end    
+})
 
-local MiscTab = script.Parent:WaitForChild("MiscTab")
-
-MiscTab:AddLabel("Roblox Name: " .. playerName)
-MiscTab:AddLabel("Display Name: " .. displayName)
-MiscTab:AddLabel("Today's Weather: " .. weather)
-MiscTab:AddLabel("Current Time: " .. currentTime)
-MiscTab:AddLabel("Today's Day: " .. currentDay)
-MiscTab:AddLabel("Next Day: " .. nextDay)
 
 MiscTab:AddLabel("Arm Controls")
 
