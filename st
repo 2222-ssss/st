@@ -174,56 +174,39 @@ M:AddTextbox({
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
-M:AddLabel("Loopkill (ArmDelete)")
-
-local selectedPlayer = ""
-local loopEnabled = false
-local loopConnection
-
-local playerNameBox = M:AddTextbox({
-    Name = "Player Name",
-    Default = "",
-    TextDisappear = false,
-    Callback = function(Value)
-        selectedPlayer = Value
-    end
-})
-
-local toggle = M:AddToggle({
-    Name = "AutoDelete (All)",
+M:AddLabel("Kill Teams")
+MTab:AddToggle({ 
+    Name = "Spectre", 
     Default = false,
     Callback = function(Value)
-        loopEnabled = Value
-        if loopEnabled then
-            loopConnection = RunService.Heartbeat:Connect(function()
-                for _, player in pairs(Players:GetPlayers()) do
-                    if selectedPlayer == "" or player.Name:lower() == selectedPlayer:lower() or player.DisplayName:lower() == selectedPlayer:lower() then
-                        local character = player.Character
-                        if character and character:FindFirstChild("ArmAngleChange") then
-                            character.ArmAngleChange:FireServer(CFrame.new(-999, -999, -999))
-                        end
-                    end
-                end
-            end)
-        else
-            if loopConnection then
-                loopConnection:Disconnect()
-                loopConnection = nil
+        for _, v in next, plrs:GetPlayers() do
+            if v ~= plr and (string.sub(v.Name, 1, 7) == "Spectre" or string.sub(v.Name, 1, 8) == "Spectre_"
+            or string.sub(v.DisplayName, 1, 7) == "Spectre" or string.sub(v.DisplayName, 1, 8) == "Spectre_") then
+                pcall(function()
+                    plr.Character.Picking:FireServer(v.Character.HumanoidRootPart, Vector3.new(math.huge, -math.huge, math.huge))
+                    wait(0.05)
+                    plr.Character.PuttingDown:FireServer()
+                end)
             end
         end
-    end
+    end    
 })
 
-M:AddButton({
-    Name = "Stop AutoDelete",
-    Callback = function()
-        loopEnabled = false
-        if loopConnection then
-            loopConnection:Disconnect()
-            loopConnection = nil
+MTab:AddToggle({ 
+    Name = "BlueLight", 
+    Default = false,
+    Callback = function(Value)
+        for _, v in next, plrs:GetPlayers() do
+            if v ~= plr and (string.sub(v.Name, 1, 7) == "BlueLight" or string.sub(v.Name, 1, 8) == "BlueLight_"
+            or string.sub(v.DisplayName, 1, 7) == "BlueLight" or string.sub(v.DisplayName, 1, 8) == "BlueLight_") then
+                pcall(function()
+                    plr.Character.Picking:FireServer(v.Character.HumanoidRootPart, Vector3.new(math.huge, -math.huge, math.huge))
+                    wait(0.05)
+                    plr.Character.PuttingDown:FireServer()
+                end)
+            end
         end
-        toggle:Set(false)
-    end
+    end    
 })
 
 local T = Window:MakeTab({ 
@@ -402,6 +385,28 @@ Tool.Unequipped:Connect(function()
 end)
   	end    
 })
+
+T:AddLabel("EZ tool")
+T:AddButton({
+    Name = "Spam Ez Tool",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local tool = Instance.new("Tool")
+
+        tool.RequiresHandle = false
+        tool.Name = "Spam Ez"
+
+        tool.Activated:Connect(function()
+            local chatEvent = game.ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
+            if chatEvent then
+                chatEvent.SayMessageRequest:FireServer("EZ", "All")
+            end
+        end)
+
+        tool.Parent = player.Backpack
+    end    
+})
+
 
 local MiscTab = Window:MakeTab({
     Name = "Misc", 
@@ -653,8 +658,59 @@ MiscTab:AddDropdown({
     end    
 })
 
-MiscTab:AddLabel("Arm Controls")
+MiscTab:AddLabel("Teleport Players")
+local LocalPlayer = Players.LocalPlayer
 
+local function GetPlayerOptions()
+    local options = {}
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            table.insert(options, player.DisplayName)
+        end
+    end
+    return options
+end
+
+local function FindPlayerByDisplayName(displayName)
+    for _, player in pairs(Players:GetPlayers()) do
+        if player.DisplayName == displayName then
+            return player
+        end
+    end
+    return nil
+end
+
+local Dropdown = T:AddDropdown({ 
+    Name = "Bring Players", 
+    Default = "Select Player",
+    Options = GetPlayerOptions(), 
+    Callback = function(Value)
+        local targetPlayer = FindPlayerByDisplayName(Value)
+        if targetPlayer and targetPlayer.Character then
+            local TargetCharacter = targetPlayer.Character
+            local ArmAngleChange = LocalPlayer.Character:FindFirstChild("ArmAngleChange")
+            if ArmAngleChange then
+                
+                task.spawn(function()
+                    local distanceThreshold = 5
+                    while TargetCharacter and (LocalPlayer.Character.PrimaryPart.Position - TargetCharacter.PrimaryPart.Position).Magnitude > distanceThreshold do
+                        local direction = (LocalPlayer.Character.PrimaryPart.Position - TargetCharacter.PrimaryPart.Position).Unit
+                        local newPosition = TargetCharacter.PrimaryPart.Position + direction * 0.5
+                        ArmAngleChange:FireServer(CFrame.new(newPosition))
+                        task.wait(0.1)
+                    end
+                end)
+            end
+        end
+    end    
+})
+
+T:AddButton({
+    Name = "Refresh Players",
+    Callback = function()
+        Dropdown:SetOptions(GetPlayerOptions())
+    end
+})
 
 MiscTab:AddLabel("Arm Controls")
 
