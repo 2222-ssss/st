@@ -687,18 +687,28 @@ MiscTab:AddButton({
         Dropdown:SetOptions(GetPlayerOptions())
     end
 })
+local player = game.Players.LocalPlayer
+local playerName = player.Name
+local displayName = player.DisplayName
 
-function getTimeAndLocation()
-    local dayOfWeek = os.date("%A")
-    local time = os.date("%H:%M:%S")
-    local country = os.getenv("USER_COUNTRY") or "Unknown"
-    local flagImagePath = "flags/" .. country .. ".png"
-    MiscTab:AddLabel("Today: " .. dayOfWeek .. " Time: " .. time .. " Country: " .. country)
-    MiscTab:AddImage(flagImagePath)
-end
+local dateTime = os.date("*t")
+local currentTime = os.date("%X")
+local currentDay = os.date("%A")
 
-getTimeAndLocation()
+local daysOfTheWeek = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}
+local currentDayIndex = table.find(daysOfTheWeek, currentDay)
+local nextDay = daysOfTheWeek[(currentDayIndex % 7) + 1]
 
+local weather = "Sunny"
+
+local MiscTab = script.Parent:WaitForChild("MiscTab")
+
+MiscTab:AddLabel("Roblox Name: " .. playerName)
+MiscTab:AddLabel("Display Name: " .. displayName)
+MiscTab:AddLabel("Today's Weather: " .. weather)
+MiscTab:AddLabel("Current Time: " .. currentTime)
+MiscTab:AddLabel("Today's Day: " .. currentDay)
+MiscTab:AddLabel("Next Day: " .. nextDay)
 
 MiscTab:AddLabel("Arm Controls")
 
