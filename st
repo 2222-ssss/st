@@ -568,7 +568,7 @@ mouse.KeyDown:Connect(function(key)
     end
 end)
 
-MiscTab:AddLabel("AntiAnvil V1&V2")
+MiscTab:AddLabel("AntiAnvil")
 
 local isEnabled1 = false
 local connection1
@@ -580,7 +580,7 @@ local Workspace = game:GetService("Workspace")
 local plr = Players.LocalPlayer
 
 MiscTab:AddToggle({
-    Name = "AntiAnvil V1",
+    Name = "AntiAnvil",
     Default = false,
     Callback = function(Value)
         isEnabled1 = Value
@@ -606,32 +606,300 @@ MiscTab:AddToggle({
     end
 })
 
-local function AntiAnvilV2Loop(Value)
-    while Value do
-        local A_1 = game:GetService("Workspace").Anvil
-        local A_2 = Vector3.new(math.huge - math.huge, math.huge, math.huge)
-        local Event = game:GetService("Workspace").TovKaiz.Picking
-        Event:FireServer(A_1, A_2)
-        wait(1)
-        wait(0.05)
-        
-        if plr.Character and plr.Character:FindFirstChild("PuttingDown") then
-            plr.Character.PuttingDown:FireServer()
+MiscTab:AddLabel("LagServer (Picking)")
+MiscTab:AddToggle({ 
+    Name = "LagServer", 
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            local A_1 = game:GetService("Workspace").Map.Map.Pickable.VendingMachine.Model 
+            if not A_1 then 
+                for _, v in pairs(game:GetService("Players"):GetPlayers()) do
+                    if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        A_1 = v.Character.HumanoidRootPart
+                        break
+                    end
+                end
+                if not A_1 then
+                    for _, obj in pairs(game:GetService("Workspace"):GetDescendants()) do
+                        if obj:IsA("Part") then
+                            A_1 = obj
+                            break
+                        end
+                    end
+                end
+            end
+            
+            local A_2 = Vector3.new(-1, -1, -1) 
+            local Event = game.Players.LocalPlayer.Picking 
+            Event:FireServer(A_1, A_2)  
+            wait(0.1)
+            game.Players.LocalPlayer.Character.PuttingDown:FireServer()
         end
-        
-        RunService.Heartbeat:Wait()
+    end    
+})
+
+local RunService = game:GetService("RunService")
+
+local plrs = game:GetService'Players'
+local plr = plrs.LocalPlayer
+local mouse = plr:GetMouse()
+
+local lagServerToggle = false
+
+local function lagServer()
+    while lagServerToggle do
+        pcall(function()
+            if not plr.Character.Picked.Value then
+                plr.Character.Picking:FireServer(mouse.Target, mouse.Hit.p)
+            else
+                plr.Character.PuttingDown:FireServer()
+            end
+        end)
+        wait()
     end
 end
 
 MiscTab:AddToggle({
-    Name = "AntiAnvil V2",
+    Name = "LagServer (Picks Everywhere)",
     Default = false,
     Callback = function(Value)
-        if Value then
-            spawn(function() AntiAnvilV2Loop(Value) end)
+        lagServerToggle = Value
+        if lagServerToggle then
+            RunService.Heartbeat:Connect(function()
+                lagServer()
+            end)
         end
     end
 })
+
+MiscTab:AddLabel("Arm Controls")
+local Slider1 = MiscTab:AddSlider({
+    Name = "Arm Height",
+    Min = 0,
+    Max = 200,
+    Default = 5,
+    Color = Color3.fromRGB(0,255,0),
+    Increment = .5,
+    ValueName = " ",
+    Callback = function(s)
+        game.Players.LocalPlayer.Character.ArmAngleChange:FireServer(CFrame.new(1,s,0))
+    end    
+})
+
+local Slider2 = MiscTab:AddSlider({
+    Name = "Arm Catapult",
+    Min = 0,
+    Max = 200,
+    Default = 5,
+    Color = Color3.fromRGB(255,0,0),
+    Increment = .5,
+    ValueName = " ",
+    Callback = function(s)
+        game.Players.LocalPlayer.Character.ArmAngleChange:FireServer(CFrame.new(1,s,-s))
+    end    
+})
+
+local meow = MiscTab:AddSlider({
+    Name = "Arm Forward",
+    Min = 0,
+    Max = 200,
+    Default = 5,
+    Color = Color3.fromRGB(255,105,180),
+    Increment = .5,
+    ValueName = " ",
+    Callback = function(s)
+        game.Players.LocalPlayer.Character.ArmAngleChange:FireServer(CFrame.new(1,.56,-s))
+    end    
+})
+
+MiscTab:AddBind({
+	Name = "Arm Reset",
+	Default = Enum.KeyCode.RightBracket,
+	Hold = false,
+	Callback = function()
+		Slider1:Set(0)
+		Slider2:Set(0)
+		meow:Set(0)
+		wait(.1)
+	    for _,player in ipairs(game.Players:GetPlayers()) do
+        player.Character.ArmAngleChange:FireServer(CFrame.new(1, .56, 0, 0, .01, .1, 0, 0, 0, 0, 0, 1))
+	end
+end
+})
+
+MiscTab:AddLabel("Head Controls")
+local meows = MiscTab:AddSlider({
+    Name = "Head Turn",
+    Min = -18,
+    Max = 18,
+    Default = 5,
+    Color = Color3.fromRGB(255, 0, 0),
+    Increment = .25,
+    ValueName = " ",
+    Callback = function(s)
+        game.Players.LocalPlayer.Character.HeadWaist:FireServer(
+            CFrame.new(0, 0.800000012, 0.0500000007, 1, 0, -s, 0, 0, 0, 0, 0, 0),
+            CFrame.new(0, 0.0949999988, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+        )
+    end    
+})
+
+local wow = MiscTab:AddSlider({
+    Name = "Head Lean",
+    Min = -1,
+    Max = 1,
+    Default = 5,
+    Color = Color3.fromRGB(0, 255, 0),
+    Increment = .1,
+    ValueName = " ",
+    Callback = function(s)
+        game.Players.LocalPlayer.Character.HeadWaist:FireServer(
+            CFrame.new(0, 0.9, 0.0500000007, 1, s, 0, 0, 0, 0, 0, 0, 0),
+            CFrame.new(0, 0.0949999988, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+        )
+    end    
+})
+
+local MyValue = 0
+local Increasing = true
+local LoopRunning = false
+
+MiscTab:AddToggle({
+    Name = "Creepy Head Lean",
+    Default = false,
+    Callback = function(Value)
+        LoopRunning = Value
+    end    
+})
+
+spawn(function()
+    while true do
+       wait(0.07)
+       if LoopRunning then
+           if Increasing then
+              MyValue = MyValue + 0.1
+              if MyValue >= 1 then
+                 Increasing = false
+              end
+           else
+              MyValue = MyValue - 0.1
+              if MyValue <= -1 then
+                 Increasing = true
+              end
+           end
+           game.Players.LocalPlayer.Character.HeadWaist:FireServer(
+               CFrame.new(0, 0.9, 0.0500000007, 1, MyValue, 0, 0, 0, 0, 0, 0, 0),
+               CFrame.new(0, 0.0949999988, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+           )
+        end
+    end
+end)
+
+local wows = MiscTab:AddSlider({
+    Name = "Body Turn",
+    Min = -10,
+    Max = 10,
+    Default = 5,
+    Color = Color3.fromRGB(0, 0, 255),
+    Increment = .2,
+    ValueName = " ",
+    Callback = function(s)
+        game.Players.LocalPlayer.Character.HeadWaist:FireServer(
+            CFrame.new(0, 0.800000012, 0.0500000007, 1, 0, 0, 0, 0, 0, 0, 0, 0),
+            CFrame.new(0, 0.0949999988, 0, 0, 0, -s, 0, 0, 0, 0, 0, 1)
+        )
+    end    
+})
+
+MiscTab:AddBind({
+    Name = "Body Reset",
+    Default = Enum.KeyCode.RightBracket,
+    Hold = false,
+    Callback = function()
+        meows:Set(0)
+        wow:Set(0)
+        wows:Set(0)
+        wait(.1)
+        game.Players.LocalPlayer.Character.ArmAngleChange:FireServer(
+            CFrame.new(1, 0.56, 0, 0, 0.01, 0.1, 0, 0, 0, 0, 0, 1)
+        )
+        game.Players.LocalPlayer.Character.HeadWaist:FireServer(
+            CFrame.new(0, 0.800000012, 0.0500000007, 1, 0, 0, 0, 0, 0, 0, 0, 0),
+            CFrame.new(0, 0.0949999988, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+        )
+    end    
+})
+
+MiscTab:AddLabel("Trolls")
+
+local armsTeleportEnabled = false
+
+MiscTab:AddToggle({
+    Name = "Arms Teleport (Everyone)",
+    Default = false,
+    Callback = function(Value)
+        armsTeleportEnabled = Value
+        if Value then
+            spawn(function()
+                while armsTeleportEnabled do
+                    local myCharacter = game.Players.LocalPlayer.Character
+                    if myCharacter then
+                        local myTorso = myCharacter:FindFirstChild("Torso")
+                        if myTorso then
+                            for _,player in ipairs(game.Players:GetPlayers()) do
+                                if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("ArmAngleChange") then
+                                    player.Character.ArmAngleChange:FireServer(CFrame.new(myTorso.Position))
+                                end
+                            end
+                        end
+                    end
+                    wait(0.1)
+                end
+            end)
+        end
+    end
+})
+
+local autoBringEnabled = false
+
+MiscTab:AddToggle({
+    Name = "AutoBring (OP)",
+    Default = false,
+    Callback = function(Value)
+        autoBringEnabled = Value
+        if Value then
+            spawn(function()
+                while autoBringEnabled do
+                    local myCharacter = game.Players.LocalPlayer.Character
+                    if myCharacter and myCharacter:FindFirstChild("HumanoidRootPart") then
+                        local myPos = myCharacter.HumanoidRootPart.Position
+                        for _, plr in ipairs(game.Players:GetPlayers()) do
+                            if plr ~= game.Players.LocalPlayer and plr.Character then
+                                local accs = plr.Character:FindFirstChildWhichIsA("Accessory")
+                                if accs then
+                                    if accs:FindFirstChild("Handle") then
+                                        plr.Character.Picking:FireServer(accs.Handle, myPos)
+                                    elseif accs:IsA("BasePart") then
+                                        plr.Character.Picking:FireServer(accs, myPos)
+                                    end
+                                else
+                                    if plr.Character:FindFirstChild("HumanoidRootPart") then
+                                        plr.Character.Picking:FireServer(plr.Character.HumanoidRootPart, myPos)
+                                        wait(0.1)
+                                        plr.Character.PuttingDown:FireServer()
+                                    end
+                                end
+                            end
+                        end
+                    end
+                    wait(0.1)
+                end
+            end)
+        end
+    end
+})
+
 
 local GlobalTab = Window:MakeTab({
     Name = "Global", 
