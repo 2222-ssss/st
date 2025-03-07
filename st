@@ -171,7 +171,60 @@ M:AddTextbox({
     end    
 })
 
-M:AddLabel("Wl & Bl")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+M:AddLabel("Loopkill (ArmDelete)")
+
+local selectedPlayer = ""
+local loopEnabled = false
+local loopConnection
+
+local playerNameBox = MTab:AddTextbox({
+    Name = "Player Name",
+    Default = "",
+    TextDisappear = false,
+    Callback = function(Value)
+        selectedPlayer = Value
+    end
+})
+
+local toggle = MTab:AddToggle({
+    Name = "AutoDelete (All)",
+    Default = false,
+    Callback = function(Value)
+        loopEnabled = Value
+        if loopEnabled then
+            loopConnection = RunService.Heartbeat:Connect(function()
+                for _, player in pairs(Players:GetPlayers()) do
+                    if selectedPlayer == "" or player.Name:lower() == selectedPlayer:lower() or player.DisplayName:lower() == selectedPlayer:lower() then
+                        local character = player.Character
+                        if character and character:FindFirstChild("ArmAngleChange") then
+                            character.ArmAngleChange:FireServer(CFrame.new(-999, -999, -999))
+                        end
+                    end
+                end
+            end)
+        else
+            if loopConnection then
+                loopConnection:Disconnect()
+                loopConnection = nil
+            end
+        end
+    end
+})
+
+MTab:AddButton({
+    Name = "Stop AutoDelete",
+    Callback = function()
+        loopEnabled = false
+        if loopConnection then
+            loopConnection:Disconnect()
+            loopConnection = nil
+        end
+        toggle:Set(false)
+    end
+})
 
 local T = Window:MakeTab({ 
     Name = "Tools", 
@@ -599,6 +652,9 @@ MiscTab:AddDropdown({
         end
     end    
 })
+
+MiscTab:AddLabel("Arm Controls")
+
 
 MiscTab:AddLabel("Arm Controls")
 
