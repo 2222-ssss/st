@@ -171,9 +171,6 @@ M:AddTextbox({
     end    
 })
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-
 M:AddLabel("Loopkill (ArmDelete)")
 
 local selectedPlayer = ""
