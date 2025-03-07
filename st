@@ -171,6 +171,7 @@ M:AddTextbox({
     end    
 })
 
+M:AddLabel("Wl & Bl")
 
 local T = Window:MakeTab({ 
     Name = "Tools", 
@@ -554,63 +555,49 @@ MiscTab:AddToggle({
     end
 })
 
-MiscTab:AddLabel("LagServer (Picking)")
-MiscTab:AddToggle({
-    Name = "LagServer",
-    Default = false,
+MiscTab:AddLabel("Locations")
+
+MiscTab:AddDropdown({ 
+    Name = "Teleport",
+    Default = "Spawn",
+    Options = {"Spawn", "Safezone 1", "Safezone 2", "Safezone 3", "Safezone 4", "Safezone 5"},
     Callback = function(Value)
-        if Value then
-            local A_1 = Workspace.Map.Map.Pickable.VendingMachine.Model
-            if not A_1 then
-                for _, v in pairs(Players:GetPlayers()) do
-                    if v ~= plr and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                        A_1 = v.Character.HumanoidRootPart
+        local plr = game.Players.LocalPlayer
+        if plr and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            if Value == "Spawn" then
+                for _, v in ipairs(workspace.Map:GetDescendants()) do
+                    if v:IsA("SpawnLocation") then
+                        plr.Character.HumanoidRootPart.CFrame = v.CFrame * CFrame.new(0, 5, 0)
                         break
                     end
                 end
-                if not A_1 then
-                    for _, obj in pairs(Workspace:GetDescendants()) do
-                        if obj:IsA("Part") then
-                            A_1 = obj
-                            break
-                        end
+            else
+                local safezones = {
+                    {pos = Vector3.new(2000, workspace.FallenPartsDestroyHeight + 2, 2000), size = Vector3.new(500, 3, 500)},
+                    {pos = Vector3.new(-1500, workspace.FallenPartsDestroyHeight + 2, 2500), size = Vector3.new(600, 3, 600)},
+                    {pos = Vector3.new(3000, workspace.FallenPartsDestroyHeight + 2, -1000), size = Vector3.new(400, 3, 400)},
+                    {pos = Vector3.new(0, workspace.FallenPartsDestroyHeight + 2, 5000), size = Vector3.new(700, 3, 700)},
+                    {pos = Vector3.new(-2500, workspace.FallenPartsDestroyHeight + 2, -2500), size = Vector3.new(550, 3, 550)}
+                }
+
+                local zoneNumber = tonumber(string.match(Value, "%d+"))
+                if zoneNumber and safezones[zoneNumber] then
+                    local zoneData = safezones[zoneNumber]
+                    local zoneName = "SafeZone" .. zoneNumber
+
+                    if not workspace:FindFirstChild(zoneName) then
+                        local sp = Instance.new("Part", workspace)
+                        sp.Name = zoneName
+                        sp.Size = zoneData.size
+                        sp.CFrame = CFrame.new(zoneData.pos)
+                        sp.Anchored = true
                     end
+
+                    plr.Character.HumanoidRootPart.CFrame = CFrame.new(zoneData.pos + Vector3.new(0, 8, 0))
                 end
             end
-            local A_2 = Vector3.new(-1, -1, -1)
-            local Event = plr.Picking
-            Event:FireServer(A_1, A_2)
-            wait(0.1)
-            plr.Character.PuttingDown:FireServer()
         end
-    end
-})
-
-local mouse = plr:GetMouse()
-local lagServerToggle = false
-
-local function lagServer()
-    while lagServerToggle do
-        pcall(function()
-            if plr.Character and plr.Character:FindFirstChild("Picked") and not plr.Character.Picked.Value then
-                plr.Character.Picking:FireServer(mouse.Target, mouse.Hit.p)
-            else
-                plr.Character.PuttingDown:FireServer()
-            end
-        end)
-        wait()
-    end
-end
-
-MiscTab:AddToggle({
-    Name = "LagServer (Picks Everywhere)",
-    Default = false,
-    Callback = function(Value)
-        lagServerToggle = Value
-        if lagServerToggle then
-            spawn(lagServer)
-        end
-    end
+    end    
 })
 
 MiscTab:AddLabel("Arm Controls")
