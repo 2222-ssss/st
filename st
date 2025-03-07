@@ -606,28 +606,31 @@ MiscTab:AddToggle({
     end
 })
 
-local RunService = game:GetService("RunService")
-local plr = game.Players.LocalPlayer
+local function AntiAnvilV2Loop(Value)
+    while Value do
+        local A_1 = game:GetService("Workspace").Anvil
+        local A_2 = Vector3.new(math.huge - math.huge, math.huge, math.huge)
+        local Event = game:GetService("Workspace").TovKaiz.Picking
+        Event:FireServer(A_1, A_2)
+        wait(1)
+        wait(0.05)
+        
+        if plr.Character and plr.Character:FindFirstChild("PuttingDown") then
+            plr.Character.PuttingDown:FireServer()
+        end
+        
+        RunService.Heartbeat:Wait()
+    end
+end
 
-MiscTab:AddToggle({ 
-    Name = "AntiAnvil V2", 
+MiscTab:AddToggle({
+    Name = "AntiAnvil V2",
     Default = false,
     Callback = function(Value)
         if Value then
-            while Value do
-                local A_1 = game:GetService("Workspace").Anvil
-                local A_2 = Vector3.new(math.huge - math.huge, math.huge, math.huge)
-                local Event = game:GetService("Workspace").TovKaiz.Picking
-                Event:FireServer(A_1, A_2)
-                wait(1)
-                wait(0.05)
-                if plr.Character and plr.Character:FindFirstChild("PuttingDown") then
-                    plr.Character.PuttingDown:FireServer()
-                end
-                RunService.Heartbeat:Wait()
-            end
+            spawn(function() AntiAnvilV2Loop(Value) end)
         end
-    end    
+    end
 })
 
 local GlobalTab = Window:MakeTab({
