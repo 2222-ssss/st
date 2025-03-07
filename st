@@ -621,7 +621,9 @@ MiscTab:AddDropdown({
 })
 
 MiscTab:AddLabel("Teleport Players")
+local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+local mouse = LocalPlayer:GetMouse()
 
 local function GetPlayerOptions()
     local options = {}
@@ -642,7 +644,7 @@ local function FindPlayerByDisplayName(displayName)
     return nil
 end
 
-local Dropdown = T:AddDropdown({ 
+local Dropdown = MiscTab:AddDropdown({ 
     Name = "Bring Players", 
     Default = "Select Player",
     Options = GetPlayerOptions(), 
@@ -651,14 +653,26 @@ local Dropdown = T:AddDropdown({
         if targetPlayer and targetPlayer.Character then
             local TargetCharacter = targetPlayer.Character
             local ArmAngleChange = LocalPlayer.Character:FindFirstChild("ArmAngleChange")
+            
             if ArmAngleChange then
-                
                 task.spawn(function()
-                    local distanceThreshold = 5
+                    local distanceThreshold = 3
                     while TargetCharacter and (LocalPlayer.Character.PrimaryPart.Position - TargetCharacter.PrimaryPart.Position).Magnitude > distanceThreshold do
-                        local direction = (LocalPlayer.Character.PrimaryPart.Position - TargetCharacter.PrimaryPart.Position).Unit
-                        local newPosition = TargetCharacter.PrimaryPart.Position + direction * 0.5
-                        ArmAngleChange:FireServer(CFrame.new(newPosition))
+                        local targetTorso = TargetCharacter:FindFirstChild("Torso") or TargetCharacter:FindFirstChild("HumanoidRootPart")
+                        if targetTorso then
+                            ArmAngleChange:FireServer(targetTorso.CFrame)
+                        end
+                        task.wait(0.1)
+                    end
+                    
+                    if LocalPlayer.Character.Picked.Value == false then
+                        LocalPlayer.Character.Picking:FireServer(TargetCharacter, TargetCharacter.PrimaryPart.Position)
+                    else
+                        LocalPlayer.Character.PuttingDown:FireServer()
+                    end
+                    
+                    for i = 1, 10 do
+                        ArmAngleChange:FireServer(CFrame.new(LocalPlayer.Character.PrimaryPart.Position) * CFrame.Angles(0, 0, -math.rad(i * 10)))
                         task.wait(0.1)
                     end
                 end)
@@ -667,7 +681,7 @@ local Dropdown = T:AddDropdown({
     end    
 })
 
-T:AddButton({
+MiscTab:AddButton({
     Name = "Refresh Players",
     Callback = function()
         Dropdown:SetOptions(GetPlayerOptions())
