@@ -174,19 +174,27 @@ M:AddTextbox({
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
+local plrs = Players
+local plr = plrs.LocalPlayer
+
 M:AddLabel("Kill Teams")
+
 MTab:AddToggle({ 
     Name = "Spectre", 
     Default = false,
     Callback = function(Value)
-        for _, v in next, plrs:GetPlayers() do
-            if v ~= plr and (string.sub(v.Name, 1, 7) == "Spectre" or string.sub(v.Name, 1, 8) == "Spectre_"
-            or string.sub(v.DisplayName, 1, 7) == "Spectre" or string.sub(v.DisplayName, 1, 8) == "Spectre_") then
-                pcall(function()
-                    plr.Character.Picking:FireServer(v.Character.HumanoidRootPart, Vector3.new(math.huge, -math.huge, math.huge))
-                    wait(0.05)
-                    plr.Character.PuttingDown:FireServer()
-                end)
+        if Value then
+            for _, v in pairs(plrs:GetPlayers()) do
+                if v ~= plr and (v.Name:sub(1, 7) == "Spectre" or v.Name:sub(1, 8) == "Spectre_"
+                or v.DisplayName:sub(1, 7) == "Spectre" or v.DisplayName:sub(1, 8) == "Spectre_") then
+                    pcall(function()
+                        if v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                            plr.Character.Picking:FireServer(v.Character.HumanoidRootPart, Vector3.new(math.huge, -math.huge, math.huge))
+                            task.wait(0.05)
+                            plr.Character.PuttingDown:FireServer()
+                        end
+                    end)
+                end
             end
         end
     end    
@@ -196,14 +204,18 @@ MTab:AddToggle({
     Name = "BlueLight", 
     Default = false,
     Callback = function(Value)
-        for _, v in next, plrs:GetPlayers() do
-            if v ~= plr and (string.sub(v.Name, 1, 7) == "BlueLight" or string.sub(v.Name, 1, 8) == "BlueLight_"
-            or string.sub(v.DisplayName, 1, 7) == "BlueLight" or string.sub(v.DisplayName, 1, 8) == "BlueLight_") then
-                pcall(function()
-                    plr.Character.Picking:FireServer(v.Character.HumanoidRootPart, Vector3.new(math.huge, -math.huge, math.huge))
-                    wait(0.05)
-                    plr.Character.PuttingDown:FireServer()
-                end)
+        if Value then
+            for _, v in pairs(plrs:GetPlayers()) do
+                if v ~= plr and (v.Name:sub(1, 8) == "BlueLight" or v.Name:sub(1, 9) == "BlueLight_"
+                or v.DisplayName:sub(1, 8) == "BlueLight" or v.DisplayName:sub(1, 9) == "BlueLight_") then
+                    pcall(function()
+                        if v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                            plr.Character.Picking:FireServer(v.Character.HumanoidRootPart, Vector3.new(math.huge, -math.huge, math.huge))
+                            task.wait(0.05)
+                            plr.Character.PuttingDown:FireServer()
+                        end
+                    end)
+                end
             end
         end
     end    
