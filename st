@@ -571,9 +571,7 @@ end)
 MiscTab:AddLabel("AntiAnvil V1&V2")
 
 local isEnabled1 = false
-local isEnabled2 = false
 local connection1
-local connection2
 
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
@@ -609,35 +607,25 @@ MiscTab:AddToggle({
 })
 
 local RunService = game:GetService("RunService")
-local Workspace = game:GetService("Workspace")
-local TovKaiz = Workspace:WaitForChild("TovKaiz")
 local plr = game.Players.LocalPlayer
-
-local A_1 = Workspace:WaitForChild("Anvil")
-local A_2 = Vector3.new(math.huge, math.huge, math.huge)
-
-local Event = TovKaiz:WaitForChild("Picking")
-
-local isEnabled = false
-
-local function AntiAnvil()
-    while isEnabled do
-        Event:FireServer(A_1, A_2)
-        wait(0.05)
-        if plr.Character and plr.Character:FindFirstChild("PuttingDown") then
-            plr.Character.PuttingDown:FireServer()
-        end
-        RunService.Heartbeat:Wait()
-    end
-end
 
 MiscTab:AddToggle({ 
     Name = "AntiAnvil V2", 
     Default = false,
     Callback = function(Value)
-        isEnabled = Value
-        if isEnabled then
-            AntiAnvil()
+        if Value then
+            while Value do
+                local A_1 = game:GetService("Workspace").Anvil
+                local A_2 = Vector3.new(math.huge - math.huge, math.huge, math.huge)
+                local Event = game:GetService("Workspace").TovKaiz.Picking
+                Event:FireServer(A_1, A_2)
+                wait(1)
+                wait(0.05)
+                if plr.Character and plr.Character:FindFirstChild("PuttingDown") then
+                    plr.Character.PuttingDown:FireServer()
+                end
+                RunService.Heartbeat:Wait()
+            end
         end
     end    
 })
