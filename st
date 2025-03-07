@@ -883,7 +883,243 @@ MiscTab:AddToggle({
      end)
 })
 
-MiscTab:AddLabel("T-T")
+MiscTab:AddLabel("Spectre Team (TrashTalk)")
+
+MiscTab:AddButton({ 
+    Name = "Trash Talk (1)", 
+    Callback = function()
+        local A_1 = "Spectre is just being carried by their exploiting owner 😂"
+        local A_2 = "All"
+        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+        Event:FireServer(A_1, A_2)
+    end    
+})
+
+MiscTab:AddButton({ 
+    Name = "Trash Talk (2)", 
+    Callback = function()
+        local A_1 = "Is Spectre even a real team or just a bunch of exploiters? 🤔"
+        local A_2 = "All"
+        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+        Event:FireServer(A_1, A_2)
+    end    
+})
+
+MiscTab:AddButton({ 
+    Name = "Trash Talk (3)", 
+    Callback = function()
+        local A_1 = "Spectre doesn’t need skills, they’ve got exploits 😂"
+        local A_2 = "All"
+        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+        Event:FireServer(A_1, A_2)
+    end    
+})
+
+MiscTab:AddButton({ 
+    Name = "Trash Talk (4)", 
+    Callback = function()
+        local A_1 = "Spectre out here relying on cheats to win, LMAO 😂"
+        local A_2 = "All"
+        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+        Event:FireServer(A_1, A_2)
+    end    
+})
+
+MiscTab:AddButton({ 
+    Name = "Trash Talk (5)", 
+    Callback = function()
+        local A_1 = "Spectre’s owner must be carrying them with all those exploits 😂"
+        local A_2 = "All"
+        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+        Event:FireServer(A_1, A_2)
+    end    
+})
+
+MiscTab:AddButton({ 
+    Name = "Trash Talk (6)", 
+    Callback = function()
+        local A_1 = "Can’t win without exploits? That’s sad, Spectre 😆"
+        local A_2 = "All"
+        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+        Event:FireServer(A_1, A_2)
+    end    
+})
+
+MiscTab:AddButton({ 
+    Name = "Trash Talk (7)", 
+    Callback = function()
+        local A_1 = "Spectre’s winning? Must be the exploiters carrying the team 😆"
+        local A_2 = "All"
+        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+        Event:FireServer(A_1, A_2)
+    end    
+})
+
+MiscTab:AddButton({ 
+    Name = "Trash Talk (8)", 
+    Callback = function()
+        local A_1 = "Spectre’s owner doing all the work with exploits 😂"
+        local A_2 = "All"
+        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+        Event:FireServer(A_1, A_2)
+    end    
+})
+
+MiscTab:AddButton({ 
+    Name = "Trash Talk (9)", 
+    Callback = function()
+        local A_1 = "Spectre's only good because their owner is exploiting, sad 😆"
+        local A_2 = "All"
+        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+        Event:FireServer(A_1, A_2)
+    end    
+})
+
+MiscTab:AddButton({ 
+    Name = "Trash Talk (10)", 
+    Callback = function()
+        local A_1 = "Spectre is proof that exploits > skill, LMAO 😂"
+        local A_2 = "All"
+        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+        Event:FireServer(A_1, A_2)
+    end    
+})
+
+MiscTab:AddButton({ 
+    Name = "Trash Talk (11)", 
+    Callback = function()
+        local A_1 = "Can Spectre even play without exploits? LMAO 😂"
+        local A_2 = "All"
+        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+        Event:FireServer(A_1, A_2)
+    end    
+})
+
+MiscTab:AddButton({ 
+    Name = "Trash Talk (12)", 
+    Callback = function()
+        local A_1 = "Spectre’s just a bunch of exploited noobs, LMAO 😂"
+        local A_2 = "All"
+        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+        Event:FireServer(A_1, A_2)
+    end    
+})
+
+MiscTab:AddButton({ 
+    Name = "Trash Talk (13)", 
+    Callback = function()
+        local A_1 = "Spectre’s just flexing their exploits, can’t play without them 😂"
+        local A_2 = "All"
+        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+        Event:FireServer(A_1, A_2)
+    end    
+})
+
+MiscTab:AddButton({ 
+    Name = "Trash Talk (14)", 
+    Callback = function()
+        local A_1 = "Spectre’s owner is doing all the work, the rest of you are just tagging along 😂"
+        local A_2 = "All"
+        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+        Event:FireServer(A_1, A_2)
+    end    
+})
+
+MiscTab:AddButton({ 
+    Name = "Trash Talk (15)", 
+    Callback = function()
+        local A_1 = "Spectre could never win without their owner pulling the strings with exploits 😂"
+        local A_2 = "All"
+        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+        Event:FireServer(A_1, A_2)
+    end    
+})
+
+MiscTab:AddLabel("Players")
+
+MiscTab:AddToggle({
+    Name = "Arm Fly (Others)",
+    Default = false,
+    Callback = function(Value)
+        game.Players.LocalPlayer.Character.ArmAngleChange:FireServer(CFrame.new(1, .56, 0, 0, 0, 0, 3.5, 1, -18, 0, 0, 1))
+
+        local speed = 5
+        local height = 5
+        local radius = 5
+        local angle = 0
+        
+        while Value do
+            local arm = game.Players.LocalPlayer.Character:FindFirstChild("Right Arm")
+            if arm then
+                angle = angle + speed * 0.1
+                local x = radius * math.cos(math.rad(angle))
+                local y = height * math.sin(math.rad(angle))
+                local z = radius * math.sin(math.rad(angle))
+                arm.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(x, y, z)
+            end
+            wait(0.03)
+        end
+    end    
+})
+
+MiscTab:AddToggle({
+    Name = "Arm Fly (Myself)",
+    Default = false,
+    Callback = function(Value)
+        local speed = 5
+        local height = 5
+        local radius = 5
+        local angle = 0
+        
+        while Value do
+            local arm = game.Players.LocalPlayer.Character:FindFirstChild("Right Arm")
+            if arm then
+                angle = angle + speed * 0.1
+                local x = radius * math.cos(math.rad(angle))
+                local y = height * math.sin(math.rad(angle))
+                local z = radius * math.sin(math.rad(angle))
+                arm.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(x, y, z)
+            end
+            wait(0.03)
+        end
+    end    
+})
+
+Tab:AddSlider({
+    Name = "Orbit Speed",
+    Min = 0,
+    Max = 1000,
+    Default = 5,
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 1,
+    ValueName = "Speed",
+    Callback = function(Value)
+    end    
+})
+
+Tab:AddSlider({
+    Name = "Orbit Height",
+    Min = 0,
+    Max = 1000,
+    Default = 5,
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 1,
+    ValueName = "Height",
+    Callback = function(Value)
+    end    
+})
+
+Tab:AddSlider({
+    Name = "Orbit Radius",
+    Min = 0,
+    Max = 1000,
+    Default = 5,
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 1,
+    ValueName = "Radius",
+    Callback = function(Value)
+    end    
+})
 
 local GlobalTab = Window:MakeTab({
     Name = "Global", 
