@@ -1,5 +1,8 @@
-local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/KaanOnly/tes/refs/heads/main/test')))()
-
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/KaanOnly/tes/refs/heads/main/test'))()
+if not OrionLib then
+    warn("Failed to load OrionLib. Please check the URL.")
+    return
+end
 local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
 
 local Window = OrionLib:MakeWindow({
