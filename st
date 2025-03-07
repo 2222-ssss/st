@@ -60,149 +60,141 @@ M:AddToggle({
         end
     end    
 })
+M:AddLabel("Loopkill V1&V2")
 
-M:AddLabel("Loopkills")
-local loopEnabled = false
-
-M:AddToggle({
-    Name = "V1 & V2", 
-    Default = false,
-    Callback = function(Value)
-        loopEnabled = Value
-        local prefix = '.'
-
-        repeat wait() until game.Loaded
-        local plrs = game:GetService'Players'
-        local plr = plrs.LocalPlayer
-        local loopall = false
-        local whitelist = {}
-        local loopKill = {}
-
-        local function findplr(Target)
-            if game:GetService'Players':FindFirstChild(Target) then
-                return game:GetService'Players':FindFirstChild(Target)
-            else
-                if Target ~= nil and Target ~= "" and Target ~= " " and Target then
-                    local name = Target
-                    local found = false
-                    for _,v in pairs(game:GetService'Players':GetPlayers()) do 
-                        if not found and (v.Name:lower():sub(1,#name) == name:lower() or v.DisplayName:lower():sub(1,#name) == name:lower()) then
-                            name = v
-                            found = true
-                        end
-                    end
-                    if name ~= nil and name ~= Target then
-                        return name
-                    end
+MTab:AddButton({
+	Name = "Activate",
+	Callback = function()
+      		local prefix = '/'
+ 
+repeat wait() until game.Loaded
+local plrs = game:GetService'Players'
+local plr = plrs.LocalPlayer
+local loopall = false
+local whitelist = {}
+local loopKill = {}
+local function findplr(Target)
+    if game:GetService'Players':FindFirstChild(Target) then
+        return game:GetService'Players':FindFirstChild(Target)
+    else
+        if Target ~= nil and Target ~= "" and Target ~= " " and Target then
+            local name = Target
+            local found = false
+            for _,v in pairs(game:GetService'Players':GetPlayers()) do 
+                if not found and (v.Name:lower():sub(1,#name) == name:lower() or v.DisplayName:lower():sub(1,#name) == name:lower()) then
+                    name = v
+                    found = true
                 end
+            end
+            if name ~= nil and name ~= Target then
+                return name
             end
         end
-
-        plr.Chatted:connect(function(msg)
-            msg = msg:lower():split(' ')
-            if msg[1] == '/e' then
-                for i,v in next,msg do
-                    msg[i] = msg[i+1]
-                end
+    end
+end
+plr.Chatted:connect(function(msg)
+    msg = msg:lower():split(' ')
+    if msg[1] == '/e' then
+        for i,v in next,msg do
+            msg[i] = msg[i+1]
+        end
+    end
+    if msg[1] == prefix..'lka' or (msg[1] == prefix..'loop' and msg[2] == 'all') then
+        loopall = true
+    elseif msg[1] == prefix..'kill' and findplr(msg[2]) and not table.find(loopKill,findplr(msg[2]).Name) then
+        table.insert(loopKill,findplr(msg[2]).Name)
+    elseif msg[1] == prefix..'wl' and findplr(msg[2]) and not table.find(whitelist,findplr(msg[2]).Name) then
+        table.insert(whitelist,findplr(msg[2]).Name)
+    elseif msg[1] == prefix..'bl' and findplr(msg[2]) and table.find(whitelist,findplr(msg[2]).Name) then
+        table.remove(whitelist,findplr(msg[2]).Name)
+    elseif msg[1] == prefix..'resurrect' then
+        table.clear(loopKill)
+        loopall = false
+        pcall(function()
+            plr.Character.PuttingDown:FireServer()
+        end)
+    end
+end)
+spawn(function()
+    while true do wait()
+        pcall(function()
+            if plr.Character.Ragdoll.Value then
+                plr.Character.GetUpEvent:FireServer()
             end
-            if msg[1] == prefix..'lka' or (msg[1] == prefix..'loop' and msg[2] == 'all') then
-                loopall = true
-            elseif msg[1] == prefix..'kill' and findplr(msg[2]) and not table.find(loopKill,findplr(msg[2]).Name) then
-                table.insert(loopKill,findplr(msg[2]).Name)
-            elseif msg[1] == prefix..'wl' and findplr(msg[2]) and not table.find(whitelist,findplr(msg[2]).Name) then
-                table.insert(whitelist,findplr(msg[2]).Name)
-            elseif msg[1] == prefix..'bl' and findplr(msg[2]) and table.find(whitelist,findplr(msg[2]).Name) then
-                table.remove(whitelist,findplr(msg[2]).Name)
-            elseif msg[1] == prefix..'resurrect' then
-                table.clear(loopKill)
-                loopall = false
+        end)
+        pcall(function()
+            for _,_2 in next,plr.Character:GetChildren() do
                 pcall(function()
+                    if _2:IsA'Accessory' and _2.Name ~= 'FakeAccessory' and _2:FindFirstChild'Handle' and _2.Handle:FindFirstChildOfClass'Weld' then
+                        local clone = _2:Clone()
+                        _2:Destroy()
+                        clone.Name = 'FakeAccessory'
+                        clone.Parent = plr.Character
+                    end
+                end)
+                pcall(function()
+                    if _2.Name == 'VelocityDamage' or _2.Name == 'GetPicked' then
+                        _2:Destroy()
+                    end
+                end)
+            end
+        end) 
+    end
+end)
+while true do wait(0.1)
+    if loopall then
+        for _,v in next,plrs:GetPlayers() do
+            if v~=plr and not table.find(whitelist,v.Name) then
+                pcall(function()
+                    plr.Character.Picking:FireServer(v.Character.HumanoidRootPart,Vector3.new(math.huge,-math.huge,math.huge))
+                    wait(0.05)
                     plr.Character.PuttingDown:FireServer()
                 end)
             end
-        end)
-
-        spawn(function()
-            while loopEnabled do wait()
+        end
+    end
+    if loopKill ~= {} then
+        for _,v in next,plrs:GetPlayers() do
+            if table.find(loopKill,v.Name) then
+                game:GetService("Workspace")[v.Name].ArmAngleChange:FireServer(CFrame.new(-999, -999, -999))
                 pcall(function()
-                    if plr.Character.Ragdoll.Value then
-                        plr.Character.GetUpEvent:FireServer()
+                    local accs = v.Character:FindFirstChildOfClass'Accessory'
+                    if accs then
+                        if accs:FindFirstChild'Handle' then
+                            plr.Character.Picking:FireServer(accs.Handle,Vector3.new(math.huge,-math.huge,math.huge))
+                        elseif accs:IsA'BasePart' then
+                            plr.Character.Picking:FireServer(accs,Vector3.new(math.huge,-math.huge,math.huge))
+                        end
+                    else
+                        plr.Character.Picking:FireServer(v.Character.HumanoidRootPart,Vector3.new(math.huge,-math.huge,math.huge))
+                        wait(0.1)
+                        plr.Character.PuttingDown:FireServer()
                     end
                 end)
-                pcall(function()
-                    for _,_2 in next,plr.Character:GetChildren() do
-                        pcall(function()
-                            if _2:IsA'Accessory' and _2.Name ~= 'FakeAccessory' and _2:FindFirstChild'Handle' and _2.Handle:FindFirstChildOfClass'Weld' then
-                                local clone = _2:Clone()
-                                _2:Destroy()
-                                clone.Name = 'FakeAccessory'
-                                clone.Parent = plr.Character
-                            end
-                        end)
-                        pcall(function()
-                            if _2.Name == 'VelocityDamage' or _2.Name == 'GetPicked' then
-                                _2:Destroy()
-                            end
-                        end)
-                    end
-                end) 
             end
-        end)
-
-        while loopEnabled do wait(0.1)
-            if loopall then
-                for _,v in next,plrs:GetPlayers() do
-                    if v~=plr and not table.find(whitelist,v.Name) then
-                        pcall(function()
-                            plr.Character.Picking:FireServer(v.Character.HumanoidRootPart,Vector3.new(math.huge,-math.huge,math.huge))
-                            wait(0.05)
-                            plr.Character.PuttingDown:FireServer()
-                        end)
-                    end
-                end
-            end
-            if loopKill ~= {} then
-                for _,v in next,plrs:GetPlayers() do
-                    if table.find(loopKill,v.Name) then
-                        game:GetService("Workspace")[v.Name].ArmAngleChange:FireServer(CFrame.new(999 , -999, 999))
-                        pcall(function()
-                            local accs = v.Character:FindFirstChildOfClass'Accessory'
-                            if accs then
-                                if accs:FindFirstChild'Handle' then
-                                    plr.Character.Picking:FireServer(accs.Handle,Vector3.new(math.huge,-math.huge,math.huge))
-                                elseif accs:IsA'BasePart' then
-                                    plr.Character.Picking:FireServer(accs,Vector3.new(math.huge,-math.huge,math.huge))
-                                end
-                            else
-                                plr.Character.Picking:FireServer(v.Character.HumanoidRootPart,Vector3.new(math.huge,-math.huge,math.huge))
-                                wait(0.1)
-                                plr.Character.PuttingDown:FireServer()
-                            end
-                        end)
-                    end
-                end
-            end
-        end    
+        end
     end
+end
+end    
 })
 
-M:AddLabel("Loopkill Target")
-M:AddTextbox({
-    Name = "Target",
-    Default = "",
-    TextDisappear = true,
-    Callback = function(Value)
-        game.Players:Chat('.kill '..Value)
-    end    
+
+MTab:AddTextbox({
+	Name = "Target",
+	Default = "",
+	TextDisappear = true,
+	Callback = function(Value)
+		game.Players:Chat('/kill '..Value)
+	end	  
 })
 
-M:AddLabel("Loop All")
-M:AddButton({
-    Name = "Loop All",
-    Callback = function()
-        game.Players:Chat(".lka")
-    end    
+MTab:AddButton({
+	Name = "Loop All",
+	Callback = function()
+      	game.Players:Chat("/lka")
+  	end    
 })
+
 
 M:AddLabel("Wl & Bl")
 M:AddTextbox({
@@ -210,7 +202,7 @@ M:AddTextbox({
     Default = "",
     TextDisappear = true,
     Callback = function(Value)
-        game.Players:Chat('.wl '..Value)
+        game.Players:Chat('/wl '..Value)
     end    
 })
 
@@ -219,7 +211,7 @@ M:AddTextbox({
     Default = "",
     TextDisappear = true,
     Callback = function(Value)
-        game.Players:Chat('.bl '..Value)
+        game.Players:Chat('/bl '..Value)
     end    
 })
 
@@ -584,7 +576,6 @@ MiscTab:AddToggle({
     Default = false,
     Callback = function(Value)
         isEnabled1 = Value
-
         if isEnabled1 then
             connection1 = RunService.Heartbeat:Connect(function()
                 for _, v in pairs(Players:GetPlayers()) do
@@ -607,21 +598,21 @@ MiscTab:AddToggle({
 })
 
 MiscTab:AddLabel("LagServer (Picking)")
-MiscTab:AddToggle({ 
-    Name = "LagServer", 
+MiscTab:AddToggle({
+    Name = "LagServer",
     Default = false,
     Callback = function(Value)
         if Value then
-            local A_1 = game:GetService("Workspace").Map.Map.Pickable.VendingMachine.Model 
-            if not A_1 then 
-                for _, v in pairs(game:GetService("Players"):GetPlayers()) do
-                    if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+            local A_1 = Workspace.Map.Map.Pickable.VendingMachine.Model
+            if not A_1 then
+                for _, v in pairs(Players:GetPlayers()) do
+                    if v ~= plr and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
                         A_1 = v.Character.HumanoidRootPart
                         break
                     end
                 end
                 if not A_1 then
-                    for _, obj in pairs(game:GetService("Workspace"):GetDescendants()) do
+                    for _, obj in pairs(Workspace:GetDescendants()) do
                         if obj:IsA("Part") then
                             A_1 = obj
                             break
@@ -629,28 +620,22 @@ MiscTab:AddToggle({
                     end
                 end
             end
-            
-            local A_2 = Vector3.new(-1, -1, -1) 
-            local Event = game.Players.LocalPlayer.Picking 
-            Event:FireServer(A_1, A_2)  
+            local A_2 = Vector3.new(-1, -1, -1)
+            local Event = plr.Picking
+            Event:FireServer(A_1, A_2)
             wait(0.1)
-            game.Players.LocalPlayer.Character.PuttingDown:FireServer()
+            plr.Character.PuttingDown:FireServer()
         end
-    end    
+    end
 })
 
-local RunService = game:GetService("RunService")
-
-local plrs = game:GetService'Players'
-local plr = plrs.LocalPlayer
 local mouse = plr:GetMouse()
-
 local lagServerToggle = false
 
 local function lagServer()
     while lagServerToggle do
         pcall(function()
-            if not plr.Character.Picked.Value then
+            if plr.Character and plr.Character:FindFirstChild("Picked") and not plr.Character.Picked.Value then
                 plr.Character.Picking:FireServer(mouse.Target, mouse.Hit.p)
             else
                 plr.Character.PuttingDown:FireServer()
@@ -666,9 +651,7 @@ MiscTab:AddToggle({
     Callback = function(Value)
         lagServerToggle = Value
         if lagServerToggle then
-            RunService.Heartbeat:Connect(function()
-                lagServer()
-            end)
+            spawn(lagServer)
         end
     end
 })
@@ -677,88 +660,90 @@ MiscTab:AddLabel("Arm Controls")
 local Slider1 = MiscTab:AddSlider({
     Name = "Arm Height",
     Min = 0,
-    Max = 200,
-    Default = 5,
-    Color = Color3.fromRGB(0,255,0),
+    Max = 5000,
+    Default = 0,
+    Color = Color3.fromRGB(0, 255, 0),
     Increment = .5,
     ValueName = " ",
     Callback = function(s)
-        game.Players.LocalPlayer.Character.ArmAngleChange:FireServer(CFrame.new(1,s,0))
-    end    
+        plr.Character.ArmAngleChange:FireServer(CFrame.new(1, s, 0))
+    end
 })
 
 local Slider2 = MiscTab:AddSlider({
     Name = "Arm Catapult",
     Min = 0,
-    Max = 200,
-    Default = 5,
-    Color = Color3.fromRGB(255,0,0),
+    Max = 5000,
+    Default = 0,
+    Color = Color3.fromRGB(255, 0, 0),
     Increment = .5,
     ValueName = " ",
     Callback = function(s)
-        game.Players.LocalPlayer.Character.ArmAngleChange:FireServer(CFrame.new(1,s,-s))
-    end    
+        plr.Character.ArmAngleChange:FireServer(CFrame.new(1, s, -s))
+    end
 })
 
 local meow = MiscTab:AddSlider({
     Name = "Arm Forward",
     Min = 0,
-    Max = 200,
-    Default = 5,
-    Color = Color3.fromRGB(255,105,180),
+    Max = 5000,
+    Default = 0,
+    Color = Color3.fromRGB(255, 105, 180),
     Increment = .5,
     ValueName = " ",
     Callback = function(s)
-        game.Players.LocalPlayer.Character.ArmAngleChange:FireServer(CFrame.new(1,.56,-s))
-    end    
+        plr.Character.ArmAngleChange:FireServer(CFrame.new(1, 0.56, -s))
+    end
 })
 
 MiscTab:AddBind({
-	Name = "Arm Reset",
-	Default = Enum.KeyCode.RightBracket,
-	Hold = false,
-	Callback = function()
-		Slider1:Set(0)
-		Slider2:Set(0)
-		meow:Set(0)
-		wait(.1)
-	    for _,player in ipairs(game.Players:GetPlayers()) do
-        player.Character.ArmAngleChange:FireServer(CFrame.new(1, .56, 0, 0, .01, .1, 0, 0, 0, 0, 0, 1))
-	end
-end
+    Name = "Arm Reset",
+    Default = Enum.KeyCode.RightBracket,
+    Hold = false,
+    Callback = function()
+        Slider1:Set(0)
+        Slider2:Set(0)
+        meow:Set(0)
+        wait(0.1)
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player.Character and player.Character:FindFirstChild("ArmAngleChange") then
+                player.Character.ArmAngleChange:FireServer(CFrame.new(1, 0.56, 0, 0, 0.01, 0.1, 0, 0, 0, 0, 0, 1))
+            end
+        end
+    end
 })
 
 MiscTab:AddLabel("Head Controls")
 local meows = MiscTab:AddSlider({
     Name = "Head Turn",
     Min = -18,
-    Max = 18,
-    Default = 5,
+    Max = 18000,
+    Default = 0,
     Color = Color3.fromRGB(255, 0, 0),
     Increment = .25,
     ValueName = " ",
     Callback = function(s)
-        game.Players.LocalPlayer.Character.HeadWaist:FireServer(
+        plr.Character.HeadWaist:FireServer(
             CFrame.new(0, 0.800000012, 0.0500000007, 1, 0, -s, 0, 0, 0, 0, 0, 0),
             CFrame.new(0, 0.0949999988, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
         )
-    end    
+    end
 })
 
 local wow = MiscTab:AddSlider({
     Name = "Head Lean",
     Min = -1,
-    Max = 1,
-    Default = 5,
+    Max = 1000,
+    Default = 0,
     Color = Color3.fromRGB(0, 255, 0),
     Increment = .1,
     ValueName = " ",
     Callback = function(s)
-        game.Players.LocalPlayer.Character.HeadWaist:FireServer(
+        plr.Character.HeadWaist:FireServer(
             CFrame.new(0, 0.9, 0.0500000007, 1, s, 0, 0, 0, 0, 0, 0, 0),
             CFrame.new(0, 0.0949999988, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
         )
-    end    
+    end
 })
 
 local MyValue = 0
@@ -770,28 +755,28 @@ MiscTab:AddToggle({
     Default = false,
     Callback = function(Value)
         LoopRunning = Value
-    end    
+    end
 })
 
 spawn(function()
     while true do
-       wait(0.07)
-       if LoopRunning then
-           if Increasing then
-              MyValue = MyValue + 0.1
-              if MyValue >= 1 then
-                 Increasing = false
-              end
-           else
-              MyValue = MyValue - 0.1
-              if MyValue <= -1 then
-                 Increasing = true
-              end
-           end
-           game.Players.LocalPlayer.Character.HeadWaist:FireServer(
-               CFrame.new(0, 0.9, 0.0500000007, 1, MyValue, 0, 0, 0, 0, 0, 0, 0),
-               CFrame.new(0, 0.0949999988, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
-           )
+        wait(0.07)
+        if LoopRunning then
+            if Increasing then
+                MyValue = MyValue + 0.1
+                if MyValue >= 1 then
+                    Increasing = false
+                end
+            else
+                MyValue = MyValue - 0.1
+                if MyValue <= -1 then
+                    Increasing = true
+                end
+            end
+            plr.Character.HeadWaist:FireServer(
+                CFrame.new(0, 0.9, 0.0500000007, 1, MyValue, 0, 0, 0, 0, 0, 0, 0),
+                CFrame.new(0, 0.0949999988, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+            )
         end
     end
 end)
@@ -799,17 +784,17 @@ end)
 local wows = MiscTab:AddSlider({
     Name = "Body Turn",
     Min = -10,
-    Max = 10,
-    Default = 5,
+    Max = 1000,
+    Default = 0,
     Color = Color3.fromRGB(0, 0, 255),
     Increment = .2,
     ValueName = " ",
     Callback = function(s)
-        game.Players.LocalPlayer.Character.HeadWaist:FireServer(
+        plr.Character.HeadWaist:FireServer(
             CFrame.new(0, 0.800000012, 0.0500000007, 1, 0, 0, 0, 0, 0, 0, 0, 0),
             CFrame.new(0, 0.0949999988, 0, 0, 0, -s, 0, 0, 0, 0, 0, 1)
         )
-    end    
+    end
 })
 
 MiscTab:AddBind({
@@ -820,15 +805,15 @@ MiscTab:AddBind({
         meows:Set(0)
         wow:Set(0)
         wows:Set(0)
-        wait(.1)
-        game.Players.LocalPlayer.Character.ArmAngleChange:FireServer(
+        wait(0.1)
+        plr.Character.ArmAngleChange:FireServer(
             CFrame.new(1, 0.56, 0, 0, 0.01, 0.1, 0, 0, 0, 0, 0, 1)
         )
-        game.Players.LocalPlayer.Character.HeadWaist:FireServer(
+        plr.Character.HeadWaist:FireServer(
             CFrame.new(0, 0.800000012, 0.0500000007, 1, 0, 0, 0, 0, 0, 0, 0, 0),
             CFrame.new(0, 0.0949999988, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
         )
-    end    
+    end
 })
 
 MiscTab:AddLabel("Trolls")
@@ -843,12 +828,12 @@ MiscTab:AddToggle({
         if Value then
             spawn(function()
                 while armsTeleportEnabled do
-                    local myCharacter = game.Players.LocalPlayer.Character
+                    local myCharacter = plr.Character
                     if myCharacter then
                         local myTorso = myCharacter:FindFirstChild("Torso")
                         if myTorso then
-                            for _,player in ipairs(game.Players:GetPlayers()) do
-                                if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("ArmAngleChange") then
+                            for _, player in ipairs(Players:GetPlayers()) do
+                                if player ~= plr and player.Character and player.Character:FindFirstChild("ArmAngleChange") then
                                     player.Character.ArmAngleChange:FireServer(CFrame.new(myTorso.Position))
                                 end
                             end
@@ -871,23 +856,23 @@ MiscTab:AddToggle({
         if Value then
             spawn(function()
                 while autoBringEnabled do
-                    local myCharacter = game.Players.LocalPlayer.Character
+                    local myCharacter = plr.Character
                     if myCharacter and myCharacter:FindFirstChild("HumanoidRootPart") then
                         local myPos = myCharacter.HumanoidRootPart.Position
-                        for _, plr in ipairs(game.Players:GetPlayers()) do
-                            if plr ~= game.Players.LocalPlayer and plr.Character then
-                                local accs = plr.Character:FindFirstChildWhichIsA("Accessory")
+                        for _, p in ipairs(Players:GetPlayers()) do
+                            if p ~= plr and p.Character then
+                                local accs = p.Character:FindFirstChildWhichIsA("Accessory")
                                 if accs then
                                     if accs:FindFirstChild("Handle") then
-                                        plr.Character.Picking:FireServer(accs.Handle, myPos)
+                                        p.Character.Picking:FireServer(accs.Handle, myPos)
                                     elseif accs:IsA("BasePart") then
-                                        plr.Character.Picking:FireServer(accs, myPos)
+                                        p.Character.Picking:FireServer(accs, myPos)
                                     end
                                 else
-                                    if plr.Character:FindFirstChild("HumanoidRootPart") then
-                                        plr.Character.Picking:FireServer(plr.Character.HumanoidRootPart, myPos)
+                                    if p.Character:FindFirstChild("HumanoidRootPart") then
+                                        p.Character.Picking:FireServer(p.Character.HumanoidRootPart, myPos)
                                         wait(0.1)
-                                        plr.Character.PuttingDown:FireServer()
+                                        p.Character.PuttingDown:FireServer()
                                     end
                                 end
                             end
@@ -895,11 +880,10 @@ MiscTab:AddToggle({
                     end
                     wait(0.1)
                 end
-            end)
-        end
-    end
+     end)
 })
 
+MiscTab:AddLabel("T-T")
 
 local GlobalTab = Window:MakeTab({
     Name = "Global", 
