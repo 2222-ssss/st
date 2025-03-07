@@ -601,6 +601,19 @@ MiscTab:AddDropdown({
 })
 
 MiscTab:AddLabel("Arm Controls")
+
+local function applyArmMovement(player, x, y, z)
+    if player.Character and player.Character:FindFirstChild("ArmAngleChange") then
+        player.Character.ArmAngleChange:FireServer(CFrame.new(x, y, z))
+    end
+end
+
+local function updateAllPlayers(x, y, z)
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        applyArmMovement(player, x, y, z)
+    end
+end
+
 local Slider1 = MiscTab:AddSlider({
     Name = "Arm Height",
     Min = 0,
@@ -610,7 +623,7 @@ local Slider1 = MiscTab:AddSlider({
     Increment = .5,
     ValueName = " ",
     Callback = function(s)
-        plr.Character.ArmAngleChange:FireServer(CFrame.new(1, s, 0))
+        updateAllPlayers(1, s, 0)
     end
 })
 
@@ -623,7 +636,7 @@ local Slider2 = MiscTab:AddSlider({
     Increment = .5,
     ValueName = " ",
     Callback = function(s)
-        plr.Character.ArmAngleChange:FireServer(CFrame.new(1, s, -s))
+        updateAllPlayers(1, s, -s)
     end
 })
 
@@ -636,7 +649,7 @@ local meow = MiscTab:AddSlider({
     Increment = .5,
     ValueName = " ",
     Callback = function(s)
-        plr.Character.ArmAngleChange:FireServer(CFrame.new(1, 0.56, -s))
+        updateAllPlayers(1, 0.56, -s)
     end
 })
 
@@ -649,59 +662,33 @@ MiscTab:AddBind({
         Slider2:Set(0)
         meow:Set(0)
         wait(0.1)
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player.Character and player.Character:FindFirstChild("ArmAngleChange") then
-                player.Character.ArmAngleChange:FireServer(CFrame.new(1, 0.56, 0, 0, 0.01, 0.1, 0, 0, 0, 0, 0, 1))
-            end
-        end
+        updateAllPlayers(1, 0.56, 0)
     end
 })
 
-
 MiscTab:AddLabel("Players")
 
+local armFlyOthers = false
 MiscTab:AddToggle({
     Name = "Arm Fly (Others)",
     Default = false,
     Callback = function(Value)
-        game.Players.LocalPlayer.Character.ArmAngleChange:FireServer(CFrame.new(1, .56, 0, 0, 0, 0, 3.5, 1, -18, 0, 0, 1))
-
-        local speed = 5
-        local height = 5
-        local radius = 5
-        local angle = 0
-        
-        while Value do
-            local arm = game.Players.LocalPlayer.Character:FindFirstChild("Right Arm")
-            if arm then
-                angle = angle + speed * 0.1
-                local x = radius * math.cos(math.rad(angle))
-                local y = height * math.sin(math.rad(angle))
-                local z = radius * math.sin(math.rad(angle))
-                arm.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(x, y, z)
-            end
-            wait(0.03)
-        end
-    end    
-})
-
-MiscTab:AddToggle({
-    Name = "Arm Fly (Myself)",
-    Default = false,
-    Callback = function(Value)
-        local speed = 5
-        local height = 5
-        local radius = 5
-        local angle = 0
-        
-        while Value do
-            local arm = game.Players.LocalPlayer.Character:FindFirstChild("Right Arm")
-            if arm then
-                angle = angle + speed * 0.1
-                local x = radius * math.cos(math.rad(angle))
-                local y = height * math.sin(math.rad(angle))
-                local z = radius * math.sin(math.rad(angle))
-                arm.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(x, y, z)
+        armFlyOthers = Value
+        while armFlyOthers do
+            for _, player in ipairs(game.Players:GetPlayers()) do
+                if player ~= game.Players.LocalPlayer then
+                    local arm = player.Character and player.Character:FindFirstChild("Right Arm")
+                    if arm then
+                        local speed = 5
+                        local height = 5
+                        local radius = 5
+                        local angle = tick() * speed
+                        local x = radius * math.cos(angle)
+                        local y = height * math.sin(angle)
+                        local z = radius * math.sin(angle)
+                        arm.CFrame = player.Character.HumanoidRootPart.CFrame * CFrame.new(x, y, z)
+                    end
+                end
             end
             wait(0.03)
         end
