@@ -1,4 +1,4 @@
-local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/KaanOnly/tes/refs/heads/main/test'))()
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/KaanOnly/tes/refs/heads/main/test')))()
 
 local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
 
