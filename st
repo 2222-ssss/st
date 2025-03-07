@@ -408,10 +408,10 @@ local MiscTab = Window:MakeTab({
 
 MiscTab:AddLabel("AutoFarms")
 local autoFarmEnabled = false
-
-MiscTab:AddButton({
-	Name = "Autofarm (1 Time)",
-	 Callback = function(Value)
+MiscTab:AddToggle({
+	Name = "Autofarm (One Time)",
+	Default = false,
+    Callback = function(Value)
         autoFarmEnabled = Value
         if autoFarmEnabled then
            
@@ -462,8 +462,7 @@ MiscTab:AddButton({
         else
  
         end
-
-  	end    
+	end    
 })
 
 MiscTab:AddButton({
@@ -609,62 +608,39 @@ MiscTab:AddToggle({
     end
 })
 
-MiscTab:AddToggle({
-    Name = "AntiAnvil V2",
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local TovKaiz = Workspace:WaitForChild("TovKaiz")
+local plr = game.Players.LocalPlayer
+
+local A_1 = Workspace:WaitForChild("Anvil")
+local A_2 = Vector3.new(math.huge, math.huge, math.huge)
+
+local Event = TovKaiz:WaitForChild("Picking")
+
+local isEnabled = false
+
+local function AntiAnvil()
+    while isEnabled do
+        Event:FireServer(A_1, A_2)
+        wait(0.05)
+        if plr.Character and plr.Character:FindFirstChild("PuttingDown") then
+            plr.Character.PuttingDown:FireServer()
+        end
+        RunService.Heartbeat:Wait()
+    end
+end
+
+MiscTab:AddToggle({ 
+    Name = "AntiAnvil V2", 
     Default = false,
     Callback = function(Value)
-        isEnabled2 = Value
-
-        if isEnabled2 then
-            connection2 = RunService.Heartbeat:Connect(function()
-                for _, v in pairs(Players:GetPlayers()) do
-                    if v ~= plr and v.Character then
-                        local character = v.Character
-                        local anvil = character:FindFirstChild("Anvil")
-
-                        if anvil then
-                            local pickingEvent = game:GetService("Workspace"):FindFirstChild("TovKaiz") and game:GetService("Workspace").TovKaiz:FindFirstChild("Picking")
-                            local puttingDownEvent = plr.Character and plr.Character:FindFirstChild("PuttingDown")
-
-                            if pickingEvent then
-                                local A_1 = anvil
-                                local A_2 = Vector3.new(math.huge - math.huge, math.huge, math.huge)
-                                pickingEvent:FireServer(A_1, A_2)
-                            end
-
-                            if puttingDownEvent then
-                                puttingDownEvent:FireServer()
-                            end
-                        end
-                    end
-                end
-            end)
-        else
-            if connection2 then
-                connection2:Disconnect()
-                connection2 = nil
-            end
+        isEnabled = Value
+        if isEnabled then
+            AntiAnvil()
         end
-    end
+    end    
 })
-
-game:GetService("Players").PlayerAdded:Connect(function(v)
-    v.CharacterAdded:Connect(function(character)
-        if isEnabled2 and v ~= game.Players.LocalPlayer then
-            if character:FindFirstChild("Anvil") then
-                local pickingEvent = game:GetService("Workspace"):FindFirstChild("TovKaiz") and game:GetService("Workspace").TovKaiz:FindFirstChild("Picking")
-                if pickingEvent then
-                    local A_1 = character:FindFirstChild("Anvil")
-                    local A_2 = Vector3.new(math.huge - math.huge, math.huge, math.huge)
-                    pickingEvent:FireServer(A_1, A_2)
-                end
-                plr.Character.PuttingDown:FireServer()
-            end
-        end
-    end)
-end)
-
-
 
 local GlobalTab = Window:MakeTab({
     Name = "Global", 
