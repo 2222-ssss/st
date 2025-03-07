@@ -713,330 +713,92 @@ MiscTab:AddBind({
     end
 })
 
-MiscTab:AddLabel("Head Controls")
-local meows = MiscTab:AddSlider({
-    Name = "Head Turn",
-    Min = -18,
-    Max = 18000,
-    Default = 0,
-    Color = Color3.fromRGB(255, 0, 0),
-    Increment = .25,
-    ValueName = " ",
-    Callback = function(s)
-        plr.Character.HeadWaist:FireServer(
-            CFrame.new(0, 0.800000012, 0.0500000007, 1, 0, -s, 0, 0, 0, 0, 0, 0),
-            CFrame.new(0, 0.0949999988, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
-        )
-    end
-})
-
-local wow = MiscTab:AddSlider({
-    Name = "Head Lean",
-    Min = -1,
-    Max = 1000,
-    Default = 0,
-    Color = Color3.fromRGB(0, 255, 0),
-    Increment = .1,
-    ValueName = " ",
-    Callback = function(s)
-        plr.Character.HeadWaist:FireServer(
-            CFrame.new(0, 0.9, 0.0500000007, 1, s, 0, 0, 0, 0, 0, 0, 0),
-            CFrame.new(0, 0.0949999988, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
-        )
-    end
-})
-
-local MyValue = 0
-local Increasing = true
-local LoopRunning = false
-
-MiscTab:AddToggle({
-    Name = "Creepy Head Lean",
-    Default = false,
-    Callback = function(Value)
-        LoopRunning = Value
-    end
-})
-
-spawn(function()
-    while true do
-        wait(0.07)
-        if LoopRunning then
-            if Increasing then
-                MyValue = MyValue + 0.1
-                if MyValue >= 1 then
-                    Increasing = false
-                end
-            else
-                MyValue = MyValue - 0.1
-                if MyValue <= -1 then
-                    Increasing = true
-                end
-            end
-            plr.Character.HeadWaist:FireServer(
-                CFrame.new(0, 0.9, 0.0500000007, 1, MyValue, 0, 0, 0, 0, 0, 0, 0),
-                CFrame.new(0, 0.0949999988, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
-            )
-        end
-    end
-end)
-
-local wows = MiscTab:AddSlider({
-    Name = "Body Turn",
-    Min = -10,
-    Max = 1000,
-    Default = 0,
-    Color = Color3.fromRGB(0, 0, 255),
-    Increment = .2,
-    ValueName = " ",
-    Callback = function(s)
-        plr.Character.HeadWaist:FireServer(
-            CFrame.new(0, 0.800000012, 0.0500000007, 1, 0, 0, 0, 0, 0, 0, 0, 0),
-            CFrame.new(0, 0.0949999988, 0, 0, 0, -s, 0, 0, 0, 0, 0, 1)
-        )
-    end
-})
-
-MiscTab:AddBind({
-    Name = "Body Reset",
-    Default = Enum.KeyCode.RightBracket,
-    Hold = false,
-    Callback = function()
-        meows:Set(0)
-        wow:Set(0)
-        wows:Set(0)
-        wait(0.1)
-        plr.Character.ArmAngleChange:FireServer(
-            CFrame.new(1, 0.56, 0, 0, 0.01, 0.1, 0, 0, 0, 0, 0, 1)
-        )
-        plr.Character.HeadWaist:FireServer(
-            CFrame.new(0, 0.800000012, 0.0500000007, 1, 0, 0, 0, 0, 0, 0, 0, 0),
-            CFrame.new(0, 0.0949999988, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
-        )
-    end
-})
-
-MiscTab:AddLabel("Trolls")
-
-local armsTeleportEnabled = false
-
-MiscTab:AddToggle({
-    Name = "Arms Teleport (Everyone)",
-    Default = false,
-    Callback = function(Value)
-        armsTeleportEnabled = Value
-        if Value then
-            spawn(function()
-                while armsTeleportEnabled do
-                    local myCharacter = plr.Character
-                    if myCharacter then
-                        local myTorso = myCharacter:FindFirstChild("Torso")
-                        if myTorso then
-                            for _, player in ipairs(Players:GetPlayers()) do
-                                if player ~= plr and player.Character and player.Character:FindFirstChild("ArmAngleChange") then
-                                    player.Character.ArmAngleChange:FireServer(CFrame.new(myTorso.Position))
-                                end
-                            end
-                        end
-                    end
-                    wait(0.1)
-                end
-            end)
-        end
-    end
-})
-
-local autoBringEnabled = false
-
-MiscTab:AddToggle({
-    Name = "AutoBring (OP)",
-    Default = false,
-    Callback = function(Value)
-        autoBringEnabled = Value
-        if Value then
-            spawn(function()
-                while autoBringEnabled do
-                    local myCharacter = plr.Character
-                    if myCharacter and myCharacter:FindFirstChild("HumanoidRootPart") then
-                        local myPos = myCharacter.HumanoidRootPart.Position
-                        for _, p in ipairs(Players:GetPlayers()) do
-                            if p ~= plr and p.Character then
-                                local accs = p.Character:FindFirstChildWhichIsA("Accessory")
-                                if accs then
-                                    if accs:FindFirstChild("Handle") then
-                                        p.Character.Picking:FireServer(accs.Handle, myPos)
-                                    elseif accs:IsA("BasePart") then
-                                        p.Character.Picking:FireServer(accs, myPos)
-                                    end
-                                else
-                                    if p.Character:FindFirstChild("HumanoidRootPart") then
-                                        p.Character.Picking:FireServer(p.Character.HumanoidRootPart, myPos)
-                                        wait(0.1)
-                                        p.Character.PuttingDown:FireServer()
-                                    end
-                                end
-                            end
-                        end
-                    end
-                    wait(0.1)
-                end
-     end)
-})
-
-MiscTab:AddLabel("Spectre Team (TrashTalk)")
-
-MiscTab:AddButton({ 
-    Name = "Trash Talk (1)", 
-    Callback = function()
-        local A_1 = "Spectre is just being carried by their exploiting owner 😂"
-        local A_2 = "All"
-        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
-        Event:FireServer(A_1, A_2)
-    end    
-})
-
-MiscTab:AddButton({ 
-    Name = "Trash Talk (2)", 
-    Callback = function()
-        local A_1 = "Is Spectre even a real team or just a bunch of exploiters? 🤔"
-        local A_2 = "All"
-        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
-        Event:FireServer(A_1, A_2)
-    end    
-})
-
-MiscTab:AddButton({ 
-    Name = "Trash Talk (3)", 
-    Callback = function()
-        local A_1 = "Spectre doesn’t need skills, they’ve got exploits 😂"
-        local A_2 = "All"
-        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
-        Event:FireServer(A_1, A_2)
-    end    
-})
-
-MiscTab:AddButton({ 
-    Name = "Trash Talk (4)", 
-    Callback = function()
-        local A_1 = "Spectre out here relying on cheats to win, LMAO 😂"
-        local A_2 = "All"
-        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
-        Event:FireServer(A_1, A_2)
-    end    
-})
-
-MiscTab:AddButton({ 
-    Name = "Trash Talk (5)", 
-    Callback = function()
-        local A_1 = "Spectre’s owner must be carrying them with all those exploits 😂"
-        local A_2 = "All"
-        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
-        Event:FireServer(A_1, A_2)
-    end    
-})
-
-MiscTab:AddButton({ 
-    Name = "Trash Talk (6)", 
-    Callback = function()
-        local A_1 = "Can’t win without exploits? That’s sad, Spectre 😆"
-        local A_2 = "All"
-        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
-        Event:FireServer(A_1, A_2)
-    end    
-})
-
-MiscTab:AddButton({ 
-    Name = "Trash Talk (7)", 
-    Callback = function()
-        local A_1 = "Spectre’s winning? Must be the exploiters carrying the team 😆"
-        local A_2 = "All"
-        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
-        Event:FireServer(A_1, A_2)
-    end    
-})
-
-MiscTab:AddButton({ 
-    Name = "Trash Talk (8)", 
-    Callback = function()
-        local A_1 = "Spectre’s owner doing all the work with exploits 😂"
-        local A_2 = "All"
-        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
-        Event:FireServer(A_1, A_2)
-    end    
-})
-
-MiscTab:AddButton({ 
-    Name = "Trash Talk (9)", 
-    Callback = function()
-        local A_1 = "Spectre's only good because their owner is exploiting, sad 😆"
-        local A_2 = "All"
-        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
-        Event:FireServer(A_1, A_2)
-    end    
-})
-
-MiscTab:AddButton({ 
-    Name = "Trash Talk (10)", 
-    Callback = function()
-        local A_1 = "Spectre is proof that exploits > skill, LMAO 😂"
-        local A_2 = "All"
-        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
-        Event:FireServer(A_1, A_2)
-    end    
-})
-
-MiscTab:AddButton({ 
-    Name = "Trash Talk (11)", 
-    Callback = function()
-        local A_1 = "Can Spectre even play without exploits? LMAO 😂"
-        local A_2 = "All"
-        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
-        Event:FireServer(A_1, A_2)
-    end    
-})
-
-MiscTab:AddButton({ 
-    Name = "Trash Talk (12)", 
-    Callback = function()
-        local A_1 = "Spectre’s just a bunch of exploited noobs, LMAO 😂"
-        local A_2 = "All"
-        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
-        Event:FireServer(A_1, A_2)
-    end    
-})
-
-MiscTab:AddButton({ 
-    Name = "Trash Talk (13)", 
-    Callback = function()
-        local A_1 = "Spectre’s just flexing their exploits, can’t play without them 😂"
-        local A_2 = "All"
-        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
-        Event:FireServer(A_1, A_2)
-    end    
-})
-
-MiscTab:AddButton({ 
-    Name = "Trash Talk (14)", 
-    Callback = function()
-        local A_1 = "Spectre’s owner is doing all the work, the rest of you are just tagging along 😂"
-        local A_2 = "All"
-        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
-        Event:FireServer(A_1, A_2)
-    end    
-})
-
-MiscTab:AddButton({ 
-    Name = "Trash Talk (15)", 
-    Callback = function()
-        local A_1 = "Spectre could never win without their owner pulling the strings with exploits 😂"
-        local A_2 = "All"
-        local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
-        Event:FireServer(A_1, A_2)
-    end    
-})
 
 MiscTab:AddLabel("Players")
 
+MiscTab:AddToggle({
+    Name = "Arm Fly (Others)",
+    Default = false,
+    Callback = function(Value)
+        game.Players.LocalPlayer.Character.ArmAngleChange:FireServer(CFrame.new(1, .56, 0, 0, 0, 0, 3.5, 1, -18, 0, 0, 1))
+
+        local speed = 5
+        local height = 5
+        local radius = 5
+        local angle = 0
+        
+        while Value do
+            local arm = game.Players.LocalPlayer.Character:FindFirstChild("Right Arm")
+            if arm then
+                angle = angle + speed * 0.1
+                local x = radius * math.cos(math.rad(angle))
+                local y = height * math.sin(math.rad(angle))
+                local z = radius * math.sin(math.rad(angle))
+                arm.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(x, y, z)
+            end
+            wait(0.03)
+        end
+    end    
+})
+
+MiscTab:AddToggle({
+    Name = "Arm Fly (Myself)",
+    Default = false,
+    Callback = function(Value)
+        local speed = 5
+        local height = 5
+        local radius = 5
+        local angle = 0
+        
+        while Value do
+            local arm = game.Players.LocalPlayer.Character:FindFirstChild("Right Arm")
+            if arm then
+                angle = angle + speed * 0.1
+                local x = radius * math.cos(math.rad(angle))
+                local y = height * math.sin(math.rad(angle))
+                local z = radius * math.sin(math.rad(angle))
+                arm.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(x, y, z)
+            end
+            wait(0.03)
+        end
+    end    
+})
+
+MiscTab:AddSlider({
+    Name = "Orbit Speed",
+    Min = 0,
+    Max = 1000,
+    Default = 5,
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 1,
+    ValueName = "Speed",
+    Callback = function(Value)
+    end    
+})
+
+MiscTab:AddSlider({
+    Name = "Orbit Height",
+    Min = 0,
+    Max = 1000,
+    Default = 5,
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 1,
+    ValueName = "Height",
+    Callback = function(Value)
+    end    
+})
+
+MiscTab:AddSlider({
+    Name = "Orbit Radius",
+    Min = 0,
+    Max = 1000,
+    Default = 5,
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 1,
+    ValueName = "Radius",
+    Callback = function(Value)
+    end    
+})
 
 local GlobalTab = Window:MakeTab({
     Name = "Global", 
