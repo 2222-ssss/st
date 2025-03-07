@@ -60,11 +60,12 @@ M:AddToggle({
         end
     end    
 })
+
 M:AddLabel("Loopkill V1&V2")
 
 local loopkillEnabled = false
 
-MTab:AddToggle({ 
+M:AddToggle({ 
     Name = "Loopkill V1&V2", 
     Default = false,
     Callback = function(Value)
@@ -135,23 +136,21 @@ MTab:AddToggle({
     end    
 })
 
-
-MTab:AddTextbox({
-	Name = "Target",
-	Default = "",
-	TextDisappear = true,
-	Callback = function(Value)
-		game.Players:Chat('/kill '..Value)
-	end	  
+M:AddTextbox({
+    Name = "Target",
+    Default = "",
+    TextDisappear = true,
+    Callback = function(Value)
+        game.Players:Chat('/kill '..Value)
+    end    
 })
 
-MTab:AddButton({
-	Name = "Loop All",
-	Callback = function()
-      	game.Players:Chat("/lka")
-  	end    
+M:AddButton({
+    Name = "Loop All",
+    Callback = function()
+        game.Players:Chat("/lka")
+    end    
 })
-
 
 M:AddLabel("Wl & Bl")
 M:AddTextbox({
@@ -171,6 +170,7 @@ M:AddTextbox({
         game.Players:Chat('/bl '..Value)
     end    
 })
+
 
 local T = Window:MakeTab({ 
     Name = "Tools", 
