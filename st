@@ -171,13 +171,16 @@ M:AddTextbox({
     end    
 })
 
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
 M:AddLabel("Loopkill (ArmDelete)")
 
 local selectedPlayer = ""
 local loopEnabled = false
 local loopConnection
 
-local playerNameBox = MTab:AddTextbox({
+local playerNameBox = M:AddTextbox({
     Name = "Player Name",
     Default = "",
     TextDisappear = false,
@@ -186,7 +189,7 @@ local playerNameBox = MTab:AddTextbox({
     end
 })
 
-local toggle = MTab:AddToggle({
+local toggle = M:AddToggle({
     Name = "AutoDelete (All)",
     Default = false,
     Callback = function(Value)
@@ -211,7 +214,7 @@ local toggle = MTab:AddToggle({
     end
 })
 
-MTab:AddButton({
+M:AddButton({
     Name = "Stop AutoDelete",
     Callback = function()
         loopEnabled = false
