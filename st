@@ -1,8 +1,5 @@
 local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/KaanOnly/tes/refs/heads/main/test'))()
-if not OrionLib then
-    warn("Failed to load OrionLib. Please check the URL.")
-    return
-end
+
 local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
 
 local Window = OrionLib:MakeWindow({
@@ -1088,7 +1085,7 @@ MiscTab:AddToggle({
     end    
 })
 
-Tab:AddSlider({
+MiscTab:AddSlider({
     Name = "Orbit Speed",
     Min = 0,
     Max = 1000,
@@ -1100,7 +1097,7 @@ Tab:AddSlider({
     end    
 })
 
-Tab:AddSlider({
+MiscTab:AddSlider({
     Name = "Orbit Height",
     Min = 0,
     Max = 1000,
@@ -1112,7 +1109,7 @@ Tab:AddSlider({
     end    
 })
 
-Tab:AddSlider({
+MiscTab:AddSlider({
     Name = "Orbit Radius",
     Min = 0,
     Max = 1000,
