@@ -1184,75 +1184,31 @@ GlobalTab:AddToggle({
     end    
 })
 
+local targetPlayer = game.Players.LocalPlayer
+local character = targetPlayer.Character or targetPlayer.CharacterAdded:Wait()
+local rootPart = character:WaitForChild("HumanoidRootPart")
+local torso = character:WaitForChild("UpperTorso")
+local anvils = {}
+local orbitRadius = 3.4
+local orbitSpeed = 2.2
+local headOffset = 1.6
+local verticalStackHeight = 0
+local isInvisibleMode = false
+local isTrackingPlayer = false
+game.Workspace.FallenPartsDestroyHeight = 0/0
+local standardVelocity = -9e37
+local commandPrefix = "."
+local isKilling = false
+local isVerticalStacking = false
 GlobalTab:AddLabel("AnvilOneShoot")
 GlobalTab:AddToggle({
     Name = "AnvilOneshoot",
     Default = false,
     Callback = function(Value)
         isKilling = Value
-        if isKilling then
-            updateAnvilPositions()
-        end
     end
 })
-
-GlobalTab:AddToggle({
-    Name = "AnvilStairs",
-    Default = false,
-    Callback = function(Value)
-        isVerticalStacking = Value
-        if isVerticalStacking then
-            verticalStackHeight = verticalStackHeight + 5
-        else
-            verticalStackHeight = 0
-        end
-    end
-})
-
-GlobalTab:AddToggle({
-    Name = "AnvilHidden",
-    Default = false,
-    Callback = function(Value)
-        isInvisibleMode = Value
-    end
-})
-
-GlobalTab:AddTextbox({
-    Name = "Speed",
-    Default = "2.2",
-    TextDisappear = true,
-    Callback = function(Value)
-        local newSpeed = tonumber(Value)
-        if newSpeed then
-            orbitSpeed = newSpeed
-        end
-    end  
-})
-
-GlobalTab:AddTextbox({
-    Name = "Height",
-    Default = "1.6",
-    TextDisappear = true,
-    Callback = function(Value)
-        local newHeight = tonumber(Value)
-        if newHeight then
-            headOffset = newHeight
-        end
-    end  
-})
-
-GlobalTab:AddTextbox({
-    Name = "Radius",
-    Default = "3.4",
-    TextDisappear = true,
-    Callback = function(Value)
-        local newRadius = tonumber(Value)
-        if newRadius then
-            orbitRadius = newRadius
-        end
-    end  
-})
-
+GlobalTab:AddLabel("AnvilKill / Clear")
 GlobalTab:AddTextbox({
     Name = "Kill",
     Default = "",
@@ -1268,23 +1224,36 @@ GlobalTab:AddButton({
         game.Players:Chat('.clr')  
     end    
 })
+GlobalTab:AddLabel("Anvil Positions")
+GlobalTab:AddToggle({
+    Name = "AnvilStairs",
+    Default = false,
+    Callback = function(Value)
+        isVerticalStacking = Value
+        if isVerticalStacking then
+            verticalStackHeight = verticalStackHeight + 5
+            game.Players:Chat('.h -9 ' .. targetPlayer.Name)
+            game.Players:Chat('.g ' .. targetPlayer.Name)
+        else
+            verticalStackHeight = 0
+            game.Players:Chat('.h 3 ' .. targetPlayer.Name)
+            game.Players:Chat('.ung ' .. targetPlayer.Name)
+        end
+    end
+})
 
-local targetPlayer = game.Players.LocalPlayer
-local character = targetPlayer.Character or targetPlayer.CharacterAdded:Wait()
-local rootPart = character:WaitForChild("HumanoidRootPart")
-local torso = character:WaitForChild("UpperTorso")
-local anvils = {}
-local orbitRadius = 3.4
-local orbitSpeed = 2.2
-local headOffset = 1.6
-local verticalStackHeight = 0
-local isVerticalStacking = false
-local isInvisibleMode = false
-local isTrackingPlayer = false
-game.Workspace.FallenPartsDestroyHeight = 0/0
-local standardVelocity = -9e37
-local commandPrefix = "."
-local isKilling = false
+GlobalTab:AddToggle({
+    Name = "AnvilHidden",
+    Default = false,
+    Callback = function(Value)
+        isInvisibleMode = Value
+        if isInvisibleMode then
+            game.Players:Chat('.v ' .. targetPlayer.Name)
+        else
+            game.Players:Chat('.unv ' .. targetPlayer.Name)
+        end
+    end
+})
 
 local function addAnvil(anvil)
     table.insert(anvils, anvil)
@@ -1301,7 +1270,7 @@ end
 local function findAllAnvils()
     anvils = {}
     for _, v in pairs(workspace:GetChildren()) do
-        if v:IsA("BasePart") and v.Name == 'Anvil' and v:FindFirstChild('Script') and v.Script:FindFirstChild('Value') and v.Script.Value.Value == targetPlayer then
+        if v:IsA("BasePart") and v.Name == 'Anvil' then
             addAnvil(v)
         end
     end
@@ -1343,9 +1312,13 @@ local function updateAnvilPositions()
             end
         end
 
-        anvil.Position = targetPosition
-        anvil.CFrame = CFrame.new(anvil.Position, torso.Position)
-        anvil.Velocity = (anvil.Position - rootPart.Position).unit * standardVelocity
+        if isKilling then
+            anvil.Position = targetPosition
+            anvil.CFrame = CFrame.new(anvil.Position, torso.Position)
+            anvil.Velocity = (anvil.Position - rootPart.Position).unit * standardVelocity
+        else
+    
+        end
     end
 end
 
@@ -1359,6 +1332,23 @@ local function onCharacterAdded(newCharacter)
 end
 
 targetPlayer.CharacterAdded:Connect(onCharacterAdded)
+
+local function onChildAdded(child)
+    if child:IsA("BasePart") and child.Name == "Anvil" then
+        addAnvil(child)
+    end
+end
+
+workspace.ChildAdded:Connect(onChildAdded)
+
+targetPlayer.CharacterRemoving:Connect(function() end)
+
+coroutine.wrap(function()
+    while true do
+        findAllAnvils()
+        task.wait()
+    end
+end)()
 
 local function handleCommand(message)
     local args = message:split(" ")
