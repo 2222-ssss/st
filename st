@@ -61,6 +61,68 @@ M:AddToggle({
     end    
 })
 
+M:AddLabel("Antifling V1&V2")
+MTab:AddToggle({ 
+    Name = "AntiFling V1+V2", 
+    Default = false,
+    Callback = function(Value)
+        local plr = game.Players.LocalPlayer
+        local character = plr.Character or plr.CharacterAdded:Wait()
+        local runService = game:GetService("RunService")
+        local normalState = CFrame.new(0.999999583, 0.650959253, 0.0507530943, 0.994099438, 0.0974220186, 0.0476996154, -0.0791255683, 0.952069402, -0.295470744, -0.074198693, 0.289953023, 0.954160273)
+
+        local function resetArm()
+            while wait() do
+                if character and plr.Character == character then
+                    for _, v in ipairs(character:GetDescendants()) do
+                        if v:IsA('BasePart') and v.Name ~= 'HumanoidRootPart' then
+                            v.Massless = true
+                        end
+                    end
+                    character.ArmAngleChange:FireServer(normalState)
+                else
+                    break
+                end
+            end
+        end
+
+        workspace.DescendantAdded:Connect(function(child)
+            pcall(function()
+                if child.Name == 'Stabler' then
+                    if child:WaitForChild('ConnectedWeld', 10).Part1:IsDescendantOf(character) then
+                        child:Destroy()
+                    end
+                end
+            end)
+        end)
+
+        runService.Heartbeat:Connect(function()
+            if character and plr.Character == character and Value then
+                for _, v in ipairs(character:GetDescendants()) do
+                    if v:IsA('BasePart') and v.Name ~= 'HumanoidRootPart' then
+                        if v:FindFirstChild('BodyVelocity') then
+                            v.BodyVelocity.MaxForce = Vector3.new(100000, 100000, 100000)
+                            v.BodyVelocity.Velocity = Vector3.zero
+                        end
+                    end
+                end
+                character.ArmAngleChange:FireServer(normalState)
+            end
+        end)
+
+        local function onCharacterAdded(newCharacter)
+            character = newCharacter
+            resetArm()
+        end
+
+        plr.CharacterAdded:Connect(onCharacterAdded)
+
+        if Value then
+            resetArm()
+        end
+    end    
+})
+
 M:AddLabel("Loopkill V1&V2")
 
 local loopkillEnabled = false
@@ -572,14 +634,12 @@ end)
 
 MiscTab:AddLabel("AntiAnvil & Antibreaker")
 
-local isEnabled1 = false
-local connection1
-
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
-local Workspace = game:GetService("Workspace")
-
 local plr = Players.LocalPlayer
+
+local isEnabled1 = false
+local connection1
 
 MiscTab:AddToggle({
     Name = "AntiAnvil",
@@ -607,20 +667,15 @@ MiscTab:AddToggle({
     end
 })
 
-local isEnabled1 = false
+local isEnabled2 = false
 local connection2
-
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-
-local plr = Players.LocalPlayer
 
 MiscTab:AddToggle({
     Name = "AntiAnvilBreaker",
     Default = false,
     Callback = function(Value)
-        isEnabled1 = Value
-        if isEnabled1 then
+        isEnabled2 = Value
+        if isEnabled2 then
             connection2 = RunService.Heartbeat:Connect(function()
                 pcall(function()
                     if plr.Character and plr.Character:FindFirstChild("Anvil") then
@@ -1129,7 +1184,63 @@ GlobalTab:AddToggle({
     end    
 })
 
-GlobalTab:AddLabel("Customize")
+GlobalTab:AddLabel("CopyPlayers Name")
+local playerList = {}
+local function updatePlayerList()
+    playerList = {}
+    for _, player in pairs(game.Players:GetPlayers()) do
+        table.insert(playerList, player.Name)
+    end
+end
+
+game.Players.PlayerAdded:Connect(updatePlayerList)
+game.Players.PlayerRemoving:Connect(updatePlayerList)
+
+GlobalTab:AddDropdown({
+    Name = "Copy Player Names",
+    Default = "1",
+    Options = playerList,
+    Callback = function(Value)
+        if Value then
+            setclipboard(Value)
+        end
+    end
+})
+
+GlobalTab:AddLabel("AutoSpam EZ")
+local GlobalTab = {}
+local spamEnabled = false
+local spamConnection
+
+GlobalTab:AddLabel("AutoSpam EZ")
+GlobalTab:AddToggle({ 
+    Name = "Spam Ez (Every 1 Min)", 
+    Default = false,
+    Callback = function(Value)
+        spamEnabled = Value
+        if spamEnabled then
+            spamConnection = game:GetService("RunService").Heartbeat:Connect(function()
+                for i = 1, 8 do
+                    wait()
+                    game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer("EZ", "All")
+                end
+                wait(60)
+            end)
+        else
+            if spamConnection then
+                spamConnection:Disconnect()
+                spamConnection = nil
+            end
+        end
+    end    
+})
+
+game.Players.PlayerAdded:Connect(function()
+    GlobalTab:SetDropdownOptions("Copy Player Names", playerList)
+end)
+game.Players.PlayerRemoving:Connect(function()
+    GlobalTab:SetDropdownOptions("Copy Player Names", playerList)
+end)
 
 local OptionsTab = Window:MakeTab({
     Name = "Options", 
