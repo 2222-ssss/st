@@ -1200,15 +1200,18 @@ local standardVelocity = -9e37
 local commandPrefix = "."
 local isKilling = false
 local isVerticalStacking = false
+local isOrbiting = false
 GlobalTab:AddLabel("AnvilOneShoot")
 GlobalTab:AddToggle({
     Name = "AnvilOneshoot",
     Default = false,
     Callback = function(Value)
         isKilling = Value
+        isOrbiting = Value 
     end
 })
-GlobalTab:AddLabel("AnvilKill / Clear")
+
+GlobalTab:AddLabel("Anvilkill / Clear")
 GlobalTab:AddTextbox({
     Name = "Kill",
     Default = "",
@@ -1224,7 +1227,7 @@ GlobalTab:AddButton({
         game.Players:Chat('.clr')  
     end    
 })
-GlobalTab:AddLabel("Anvil Positions")
+GlobalTab:AddLabel("AnvilPositions")
 GlobalTab:AddToggle({
     Name = "AnvilStairs",
     Default = false,
@@ -1292,7 +1295,7 @@ local function getClosestPlayer()
 end
 
 local function updateAnvilPositions()
-    if #anvils == 0 then return end
+    if #anvils == 0 or not isOrbiting then return end
     local currentTime = tick() * orbitSpeed
     local phaseShift = (2 * math.pi) / #anvils
     for i, anvil in ipairs(anvils) do
@@ -1312,13 +1315,9 @@ local function updateAnvilPositions()
             end
         end
 
-        if isKilling then
-            anvil.Position = targetPosition
-            anvil.CFrame = CFrame.new(anvil.Position, torso.Position)
-            anvil.Velocity = (anvil.Position - rootPart.Position).unit * standardVelocity
-        else
-    
-        end
+        anvil.Position = targetPosition
+        anvil.CFrame = CFrame.new(anvil.Position, torso.Position)
+        anvil.Velocity = (anvil.Position - rootPart.Position).unit * standardVelocity
     end
 end
 
