@@ -1264,9 +1264,14 @@ local function addAnvil(anvil)
     anvil.CanCollide = false
     anvil.Anchored = false
     anvil.CustomPhysicalProperties = PhysicalProperties.new(0, 0, 0, 0, 0)
-    anvil.Velocity = (anvil.Position - rootPart.Position).unit * standardVelocity
-    if isInvisibleMode then
-        anvil.Position = Vector3.new(anvil.Position.X, -100, anvil.Position.Z)
+    if not isKilling then
+        anvil.Velocity = (anvil.Position - rootPart.Position).unit * standardVelocity
+    elseif isKilling then
+        if isInvisibleMode then
+            anvil.Position = Vector3.new(anvil.Position.X, -100, anvil.Position.Z)
+        else
+            anvil.Velocity = (anvil.Position - rootPart.Position).unit * standardVelocity
+        end
     end
 end
 
@@ -1278,6 +1283,7 @@ local function findAllAnvils()
         end
     end
 end
+
 local function getClosestPlayer()
     local closestPlayer = nil
     local shortestDistance = math.huge
@@ -1302,7 +1308,6 @@ local function updateAnvilPositions()
         local offsetX = math.cos(time) * orbitRadius
         local offsetZ = math.sin(time) * orbitRadius
         local targetPosition = torso.Position + Vector3.new(offsetX, headOffset, offsetZ)
-
         if isVerticalStacking then
             targetPosition = targetPosition + Vector3.new(0, verticalStackHeight + (i * 2), 0)
         elseif isInvisibleMode then
@@ -1313,10 +1318,14 @@ local function updateAnvilPositions()
                 anvil.CFrame = CFrame.new(anvil.Position, closestPlayer.Character.HumanoidRootPart.Position)
             end
         end
-
-        anvil.Position = targetPosition
-        anvil.CFrame = CFrame.new(anvil.Position, torso.Position)
-        anvil.Velocity = (anvil.Position - rootPart.Position).unit * standardVelocity
+        if not isKilling then
+            anvil.Position = targetPosition
+            anvil.CFrame = CFrame.new(anvil.Position, torso.Position)
+        else
+            anvil.Position = targetPosition
+            anvil.CFrame = CFrame.new(anvil.Position, torso.Position)
+            anvil.Velocity = (anvil.Position - rootPart.Position).unit * standardVelocity
+        end
     end
 end
 
