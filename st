@@ -1273,12 +1273,11 @@ end
 local function findAllAnvils()
     anvils = {}
     for _, v in pairs(workspace:GetChildren()) do
-        if v:IsA("BasePart") and v.Name == 'Anvil' then
+        if v:IsA("BasePart") and v.Name == 'Anvil' and v:FindFirstChild('Script') and v.Script:FindFirstChild('Value') and v.Script.Value.Value == targetPlayer then
             addAnvil(v)
         end
     end
 end
-
 local function getClosestPlayer()
     local closestPlayer = nil
     local shortestDistance = math.huge
