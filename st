@@ -1184,27 +1184,346 @@ GlobalTab:AddToggle({
     end    
 })
 
-GlobalTab:AddLabel("CopyPlayers Name")
-local playerList = {}
-local function updatePlayerList()
-    playerList = {}
-    for _, player in pairs(game.Players:GetPlayers()) do
-        table.insert(playerList, player.Name)
+
+GlobalTab:AddToggle({
+    Name = "AnvilOneshoot",
+    Default = false,
+    Callback = function(Value)
+        isKilling = Value
+    end
+})
+GlobalTab:AddLabel("Anvils Position")
+GlobalTab:AddToggle({
+    Name = "AnvilStairs",
+    Default = false,
+    Callback = function(Value)
+        isVerticalStacking = Value
+        if isVerticalStacking then
+            verticalStackHeight = verticalStackHeight + 5
+        else
+            verticalStackHeight = 0
+        end
+    end
+})
+
+GlobalTab:AddToggle({
+    Name = "AnvilHidden",
+    Default = false,
+    Callback = function(Value)
+        isInvisibleMode = Value
+    end
+})
+GlobalTab:AddLabel("OneShoot")
+GlobalTab:AddTextbox({
+    Name = "Kill",
+    Default = "",
+    TextDisappear = true,
+    Callback = function(Value)
+        game.Players:Chat('.k '..Value)
+    end  
+})
+GlobalTab:AddLabel("Clear")
+GlobalTab:AddButton({ 
+    Name = "Clear", 
+    Callback = function()
+        game.Players:Chat('.clr')  
+    end    
+})
+GlobalTab:AddLabel("Controls Speed,Radius,Height")
+GlobalTab:AddTextbox({
+    Name = "Speed",
+    Default = "2.2",
+    TextDisappear = true,
+    Callback = function(Value)
+        local newSpeed = tonumber(Value)
+        if newSpeed then
+            orbitSpeed = newSpeed
+        end
+    end  
+})
+
+GlobalTab:AddTextbox({
+    Name = "Height",
+    Default = "1.6",
+    TextDisappear = true,
+    Callback = function(Value)
+        local newHeight = tonumber(Value)
+        if newHeight then
+            headOffset = newHeight
+        end
+    end  
+})
+
+GlobalTab:AddTextbox({
+    Name = "Radius",
+    Default = "3.4",
+    TextDisappear = true,
+    Callback = function(Value)
+        local newRadius = tonumber(Value)
+        if newRadius then
+            orbitRadius = newRadius
+        end
+    end  
+})
+
+local targetPlayer = game.Players.LocalPlayer
+local character = targetPlayer.Character or targetPlayer.CharacterAdded:Wait()
+local rootPart = character:WaitForChild("HumanoidRootPart")
+local torso = character:WaitForChild("UpperTorso")
+local anvils = {}
+local orbitRadius = 3.4
+local orbitSpeed = 2.2
+local headOffset = 1.6
+local verticalStackHeight = 0
+local isVerticalStacking = false
+local isInvisibleMode = false
+local isTrackingPlayer = false
+game.Workspace.FallenPartsDestroyHeight = 0/0
+local standardVelocity = -9e37
+local commandPrefix = "."
+local isKilling = false
+
+local function addAnvil(anvil)
+    table.insert(anvils, anvil)
+    anvil.Parent = workspace
+    anvil.CanCollide = false
+    anvil.Anchored = false
+    anvil.CustomPhysicalProperties = PhysicalProperties.new(0, 0, 0, 0, 0)
+    anvil.Velocity = (anvil.Position - rootPart.Position).unit * standardVelocity
+    if isInvisibleMode then
+        anvil.Position = Vector3.new(anvil.Position.X, -100, anvil.Position.Z)
     end
 end
 
-game.Players.PlayerAdded:Connect(updatePlayerList)
-game.Players.PlayerRemoving:Connect(updatePlayerList)
-
-GlobalTab:AddDropdown({
-    Name = "Copy Player Names",
-    Default = "1",
-    Options = playerList,
-    Callback = function(Value)
-        if Value then
-            setclipboard(Value)
+local function findAllAnvils()
+    anvils = {}
+    for _, v in pairs(workspace:GetChildren()) do
+        if v:IsA("BasePart") and v.Name == 'Anvil' and v:FindFirstChild('Script') and v.Script:FindFirstChild('Value') and v.Script.Value.Value == targetPlayer then
+            addAnvil(v)
         end
     end
+end
+
+local function getClosestPlayer()
+    local closestPlayer = nil
+    local shortestDistance = math.huge
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player ~= targetPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local distance = (rootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
+            if distance < shortestDistance then
+                shortestDistance = distance
+                closestPlayer = player
+            end
+        end
+    end
+    return closestPlayer
+end
+
+local function updateAnvilPositions()
+    if #anvils == 0 then return end
+    local currentTime = tick() * orbitSpeed
+    local phaseShift = (2 * math.pi) / #anvils
+    for i, anvil in ipairs(anvils) do
+        local time = currentTime + (i - 1) * phaseShift
+        local offsetX = math.cos(time) * orbitRadius
+        local offsetZ = math.sin(time) * orbitRadius
+        local targetPosition = torso.Position + Vector3.new(offsetX, headOffset, offsetZ)
+
+        if isVerticalStacking then
+            targetPosition = targetPosition + Vector3.new(0, verticalStackHeight + (i * 2), 0)
+        elseif isInvisibleMode then
+            targetPosition = Vector3.new(targetPosition.X, -100, targetPosition.Z)
+        elseif isTrackingPlayer then
+            local closestPlayer = getClosestPlayer()
+            if closestPlayer and closestPlayer.Character and closestPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                anvil.CFrame = CFrame.new(anvil.Position, closestPlayer.Character.HumanoidRootPart.Position)
+            end
+        end
+
+        anvil.Position = targetPosition
+        anvil.CFrame = CFrame.new(anvil.Position, torso.Position)
+        anvil.Velocity = (anvil.Position - rootPart.Position).unit * standardVelocity
+    end
+end
+
+game:GetService("RunService").Heartbeat:Connect(updateAnvilPositions)
+
+local function onCharacterAdded(newCharacter)
+    character = newCharacter
+    rootPart = newCharacter:WaitForChild("HumanoidRootPart")
+    torso = newCharacter:WaitForChild("UpperTorso")
+    findAllAnvils()
+end
+
+targetPlayer.CharacterAdded:Connect(onCharacterAdded)
+
+local function onChildAdded(child)
+    if child:IsA("BasePart") and child.Name == "Anvil" then
+        addAnvil(child)
+    end
+end
+
+workspace.ChildAdded:Connect(onChildAdded)
+
+targetPlayer.CharacterRemoving:Connect(function() end)
+
+coroutine.wrap(function()
+    while true do
+        findAllAnvils()
+        task.wait()
+    end
+end)()
+
+local function handleCommand(message)
+    local args = message:split(" ")
+    local command = args[1]:lower()
+
+    if command == commandPrefix .. "s" and #args >= 2 then
+        local newSpeed = tonumber(args[2])
+        if newSpeed then
+            orbitSpeed = newSpeed
+        end
+    elseif command == commandPrefix .. "r" and #args >= 2 then
+        local newRadius = tonumber(args[2])
+        if newRadius then
+            orbitRadius = newRadius
+        end
+    elseif command == commandPrefix .. "h" and #args >= 2 then
+        local newHeight = tonumber(args[2])
+        if newHeight then
+            headOffset = newHeight
+        end
+    elseif command == commandPrefix .. "k" and args[2] then
+        isKilling = true
+        coroutine.wrap(function()
+            while isKilling do
+                for _, player in pairs(game.Players:GetPlayers()) do
+                    local playerName = string.lower(player.Name)
+                    local displayName = string.lower(player.DisplayName)
+                    local targetName = string.lower(args[2])
+
+                    if string.find(playerName, targetName) or string.find(displayName, targetName) then
+                        while isKilling and player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 do
+                            local targetTorso = player.Character:WaitForChild("HumanoidRootPart")
+                            local targetPosition = targetTorso.Position + Vector3.new(0, 0, 0)
+
+                            for _, anvil in ipairs(anvils) do
+                                local tweenService = game:GetService("TweenService")
+                                local tweenInfo = TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
+                                local goal = { Position = targetPosition }
+
+                                local tween = tweenService:Create(anvil, tweenInfo, goal)
+                                tween:Play()
+                            end
+                            task.wait(0.05)
+                        end
+                    end
+                end
+                task.wait(0.05)
+            end
+        end)()
+    elseif command == commandPrefix .. "clr" then
+        isKilling = false
+    elseif command == commandPrefix .. "v" then
+        isInvisibleMode = true
+    elseif command == commandPrefix .. "unv" then
+        isInvisibleMode = false
+    elseif command == commandPrefix .. "q" then
+        isTrackingPlayer = true
+    elseif command == commandPrefix .. "unq" then
+        isTrackingPlayer = false
+    elseif command == commandPrefix .. "g" then
+        isVerticalStacking = true
+        verticalStackHeight = verticalStackHeight + 5
+    elseif command == commandPrefix .. "ung" then
+        isVerticalStacking = false
+        verticalStackHeight = 0
+    end
+end
+
+targetPlayer.Chatted:Connect(handleCommand)
+
+coroutine.wrap(function()
+    while true do
+        findAllAnvils()
+        task.wait()
+    end
+end)()
+
+GlobalTab:AddLabel("Controls Speed, Height, Gravity & More")
+
+GlobalTab:AddSlider({ 
+    Name = "WalkSpeed", 
+    Min = 0,
+    Max = 2000,  
+    Default = 16,
+    Color = Color3.fromRGB(255, 50, 50),
+    Increment = 1,
+    ValueName = "Speed",
+    Callback = function(Value)
+        local player = game.Players.LocalPlayer
+        if player and player.Character then
+            player.Character.Humanoid.WalkSpeed = Value
+        end
+    end    
+})
+
+GlobalTab:AddSlider({ 
+    Name = "JumpPower", 
+    Min = 0,
+    Max = 2000,  
+    Default = 50,
+    Color = Color3.fromRGB(50, 255, 50),
+    Increment = 1,
+    ValueName = "Jump Height",
+    Callback = function(Value)
+        local player = game.Players.LocalPlayer
+        if player and player.Character then
+            player.Character.Humanoid.JumpPower = Value
+        end
+    end    
+})
+
+GlobalTab:AddSlider({ 
+    Name = "Gravity", 
+    Min = 0,
+    Max = 2000,  
+    Default = 196.2,
+    Color = Color3.fromRGB(50, 50, 255),
+    Increment = 1,
+    ValueName = "Gravit",
+    Callback = function(Value)
+        game.Workspace.Gravity = Value
+    end    
+})
+
+GlobalTab:AddSlider({ 
+    Name = "Field of View (FOV)", 
+    Min = 30,
+    Max = 2000,  
+    Default = 70,
+    Color = Color3.fromRGB(255, 255, 50),
+    Increment = 1,
+    ValueName = "FOV",
+    Callback = function(Value)
+        game.Workspace.CurrentCamera.FieldOfView = Value
+    end    
+})
+
+GlobalTab:AddSlider({ 
+    Name = "HipHeight", 
+    Min = 0,
+    Max = 2000,  
+    Default = 2,
+    Color = Color3.fromRGB(255, 165, 0),
+    Increment = 1,
+    ValueName = "Height",
+    Callback = function(Value)
+        local player = game.Players.LocalPlayer
+        if player and player.Character then
+            player.Character.Humanoid.HipHeight = Value
+        end
+    end    
 })
 
 local OptionsTab = Window:MakeTab({
