@@ -62,7 +62,7 @@ M:AddToggle({
 })
 
 M:AddLabel("Antifling V1&V2")
-MTab:AddToggle({ 
+M:AddToggle({ 
     Name = "AntiFling V1+V2", 
     Default = false,
     Callback = function(Value)
