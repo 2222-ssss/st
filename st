@@ -637,45 +637,6 @@ MiscTab:AddToggle({
     end
 })
 
-local isEnabled1 = false
-local connection2
-
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-
-local plr = Players.LocalPlayer
-
-MiscTab:AddToggle({
-    Name = "AntiAnvilBreaker V2",
-    Default = false,
-    Callback = function(Value)
-        isEnabled1 = Value
-        if isEnabled1 then
-            connection2 = RunService.Heartbeat:Connect(function()
-                pcall(function()
-                    if plr.Character and plr.Character:FindFirstChild("Anvil") then
-                        local anvil = plr.Character.Anvil
-                        
-                        anvil.Parent = plr.Character 
-                        
-                        if anvil.Position.Y < -10 then 
-                            anvil.CFrame = CFrame.new(plr.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0))
-                        end
-
-                        anvil.send:FireServer(CFrame.new(0, 10, 0))
-                    end
-                end)
-            end)
-        else
-            if connection2 then
-                connection2:Disconnect()
-                connection2 = nil
-            end
-        end
-    end
-})
-
-
 MiscTab:AddLabel("Locations")
 
 MiscTab:AddDropdown({ 
