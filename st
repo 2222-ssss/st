@@ -1207,41 +1207,6 @@ GlobalTab:AddDropdown({
     end
 })
 
-GlobalTab:AddLabel("AutoSpam EZ")
-local GlobalTab = {}
-local spamEnabled = false
-local spamConnection
-
-GlobalTab:AddLabel("AutoSpam EZ")
-GlobalTab:AddToggle({ 
-    Name = "Spam Ez (Every 1 Min)", 
-    Default = false,
-    Callback = function(Value)
-        spamEnabled = Value
-        if spamEnabled then
-            spamConnection = game:GetService("RunService").Heartbeat:Connect(function()
-                for i = 1, 8 do
-                    wait()
-                    game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer("EZ", "All")
-                end
-                wait(60)
-            end)
-        else
-            if spamConnection then
-                spamConnection:Disconnect()
-                spamConnection = nil
-            end
-        end
-    end    
-})
-
-game.Players.PlayerAdded:Connect(function()
-    GlobalTab:SetDropdownOptions("Copy Player Names", playerList)
-end)
-game.Players.PlayerRemoving:Connect(function()
-    GlobalTab:SetDropdownOptions("Copy Player Names", playerList)
-end)
-
 local OptionsTab = Window:MakeTab({
     Name = "Options", 
     Icon = "rbxassetid://4483345998", 
