@@ -1184,15 +1184,18 @@ GlobalTab:AddToggle({
     end    
 })
 
-
+GlobalTab:AddLabel("AnvilOneShoot")
 GlobalTab:AddToggle({
     Name = "AnvilOneshoot",
     Default = false,
     Callback = function(Value)
         isKilling = Value
+        if isKilling then
+            updateAnvilPositions()
+        end
     end
 })
-GlobalTab:AddLabel("Anvils Position")
+
 GlobalTab:AddToggle({
     Name = "AnvilStairs",
     Default = false,
@@ -1213,23 +1216,7 @@ GlobalTab:AddToggle({
         isInvisibleMode = Value
     end
 })
-GlobalTab:AddLabel("OneShoot")
-GlobalTab:AddTextbox({
-    Name = "Kill",
-    Default = "",
-    TextDisappear = true,
-    Callback = function(Value)
-        game.Players:Chat('.k '..Value)
-    end  
-})
-GlobalTab:AddLabel("Clear")
-GlobalTab:AddButton({ 
-    Name = "Clear", 
-    Callback = function()
-        game.Players:Chat('.clr')  
-    end    
-})
-GlobalTab:AddLabel("Controls Speed,Radius,Height")
+
 GlobalTab:AddTextbox({
     Name = "Speed",
     Default = "2.2",
@@ -1264,6 +1251,22 @@ GlobalTab:AddTextbox({
             orbitRadius = newRadius
         end
     end  
+})
+
+GlobalTab:AddTextbox({
+    Name = "Kill",
+    Default = "",
+    TextDisappear = true,
+    Callback = function(Value)
+        game.Players:Chat('.k '..Value)
+    end  
+})
+
+GlobalTab:AddButton({
+    Name = "Clear", 
+    Callback = function()
+        game.Players:Chat('.clr')  
+    end    
 })
 
 local targetPlayer = game.Players.LocalPlayer
@@ -1357,23 +1360,6 @@ end
 
 targetPlayer.CharacterAdded:Connect(onCharacterAdded)
 
-local function onChildAdded(child)
-    if child:IsA("BasePart") and child.Name == "Anvil" then
-        addAnvil(child)
-    end
-end
-
-workspace.ChildAdded:Connect(onChildAdded)
-
-targetPlayer.CharacterRemoving:Connect(function() end)
-
-coroutine.wrap(function()
-    while true do
-        findAllAnvils()
-        task.wait()
-    end
-end)()
-
 local function handleCommand(message)
     local args = message:split(" ")
     local command = args[1]:lower()
@@ -1449,82 +1435,6 @@ coroutine.wrap(function()
         task.wait()
     end
 end)()
-
-GlobalTab:AddLabel("Controls Speed, Height, Gravity & More")
-
-GlobalTab:AddSlider({ 
-    Name = "WalkSpeed", 
-    Min = 0,
-    Max = 2000,  
-    Default = 16,
-    Color = Color3.fromRGB(255, 50, 50),
-    Increment = 1,
-    ValueName = "Speed",
-    Callback = function(Value)
-        local player = game.Players.LocalPlayer
-        if player and player.Character then
-            player.Character.Humanoid.WalkSpeed = Value
-        end
-    end    
-})
-
-GlobalTab:AddSlider({ 
-    Name = "JumpPower", 
-    Min = 0,
-    Max = 2000,  
-    Default = 50,
-    Color = Color3.fromRGB(50, 255, 50),
-    Increment = 1,
-    ValueName = "Jump Height",
-    Callback = function(Value)
-        local player = game.Players.LocalPlayer
-        if player and player.Character then
-            player.Character.Humanoid.JumpPower = Value
-        end
-    end    
-})
-
-GlobalTab:AddSlider({ 
-    Name = "Gravity", 
-    Min = 0,
-    Max = 2000,  
-    Default = 196.2,
-    Color = Color3.fromRGB(50, 50, 255),
-    Increment = 1,
-    ValueName = "Gravit",
-    Callback = function(Value)
-        game.Workspace.Gravity = Value
-    end    
-})
-
-GlobalTab:AddSlider({ 
-    Name = "Field of View (FOV)", 
-    Min = 30,
-    Max = 2000,  
-    Default = 70,
-    Color = Color3.fromRGB(255, 255, 50),
-    Increment = 1,
-    ValueName = "FOV",
-    Callback = function(Value)
-        game.Workspace.CurrentCamera.FieldOfView = Value
-    end    
-})
-
-GlobalTab:AddSlider({ 
-    Name = "HipHeight", 
-    Min = 0,
-    Max = 2000,  
-    Default = 2,
-    Color = Color3.fromRGB(255, 165, 0),
-    Increment = 1,
-    ValueName = "Height",
-    Callback = function(Value)
-        local player = game.Players.LocalPlayer
-        if player and player.Character then
-            player.Character.Humanoid.HipHeight = Value
-        end
-    end    
-})
 
 local OptionsTab = Window:MakeTab({
     Name = "Options", 
