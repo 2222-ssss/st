@@ -1201,13 +1201,27 @@ local commandPrefix = "."
 local isKilling = false
 local isVerticalStacking = false
 local isOrbiting = false
+local targetNameForKilling = ""
+local isKillingPersistent = false
+local isAnvilOneShootOn = false
+
 GlobalTab:AddLabel("AnvilOneShoot")
 GlobalTab:AddToggle({
     Name = "AnvilOneshoot",
     Default = false,
     Callback = function(Value)
-        isKilling = Value
-        isOrbiting = Value 
+        isAnvilOneShootOn = Value
+        if isAnvilOneShootOn then
+            isKilling = true
+            isOrbiting = true
+            isVerticalStacking = true
+            isInvisibleMode = true
+        else
+            isKilling = false
+            isOrbiting = false
+            isVerticalStacking = false
+            isInvisibleMode = false
+        end
     end
 })
 
@@ -1227,6 +1241,7 @@ GlobalTab:AddButton({
         game.Players:Chat('.clr')  
     end    
 })
+
 GlobalTab:AddLabel("AnvilPositions")
 GlobalTab:AddToggle({
     Name = "AnvilStairs",
@@ -1336,6 +1351,9 @@ local function onCharacterAdded(newCharacter)
     rootPart = newCharacter:WaitForChild("HumanoidRootPart")
     torso = newCharacter:WaitForChild("UpperTorso")
     findAllAnvils()
+    if isKillingPersistent and targetNameForKilling ~= "" then
+        game.Players:Chat('.k '..targetNameForKilling)
+    end
 end
 
 targetPlayer.CharacterAdded:Connect(onCharacterAdded)
@@ -1378,6 +1396,8 @@ local function handleCommand(message)
         end
     elseif command == commandPrefix .. "k" and args[2] then
         isKilling = true
+        targetNameForKilling = args[2]
+        isKillingPersistent = true
         coroutine.wrap(function()
             while isKilling do
                 for _, player in pairs(game.Players:GetPlayers()) do
@@ -1407,6 +1427,7 @@ local function handleCommand(message)
         end)()
     elseif command == commandPrefix .. "clr" then
         isKilling = false
+        isKillingPersistent = false
     elseif command == commandPrefix .. "v" then
         isInvisibleMode = true
     elseif command == commandPrefix .. "unv" then
