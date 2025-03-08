@@ -870,9 +870,218 @@ MiscTab:AddToggle({
 MiscTab:AddLabel("Other Guis")
 
 MiscTab:AddButton({
-	Name = "Button!",
+	Name = "Unknown Gui (By )",
 	Callback = function()
-      		print("button pressed")
+        local Players = game:GetService("Players")
+        local player = Players.LocalPlayer
+        local playerGui = player:WaitForChild("PlayerGui")
+        local mouse = player:GetMouse()
+        local TweenService = game:GetService("TweenService")  -
+        local StarterGui = game:GetService("StarterGui")
+         
+       
+        if playerGui:FindFirstChild("SpeedControlGui") then
+
+            StarterGui:SetCore("SendNotification", {
+                Title = "Script Execution",
+                Text = "Script already executed!",
+                Duration = 5
+            })
+            return  
+        end
+         
+    
+        StarterGui:SetCore("SendNotification", {
+            Title = "Script Loaded",
+            Text = "Script has been successfully loaded!",
+            Duration = 5
+        })
+         
+
+        local screenGui = Instance.new("ScreenGui", playerGui)
+        screenGui.Name = "SpeedControlGui"  
+        local frame = Instance.new("Frame", screenGui)
+        frame.Size = UDim2.new(0, 200, 0, 300)
+        frame.Position = UDim2.new(0.5, -150, 0.5, -150)
+        frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        frame.Active, frame.Draggable = true, true
+         
+        local function rainbowEffect()
+            local startTime = tick()
+            game:GetService("RunService").Heartbeat:Connect(function()
+                local hue = (tick() - startTime) * 0.1
+                frame.BackgroundColor3 = Color3.fromHSV(hue % 1, 1, 1)
+            end)
+        end
+        rainbowEffect()
+         
+        local textBox = Instance.new("TextBox", frame)
+        textBox.Size = UDim2.new(0, 200, 0, 50)
+        textBox.Position = UDim2.new(0.5, -100, 0.1, 0)
+        textBox.PlaceholderText = "Enter Number"
+        textBox.TextSize = 20
+        textBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+         
+        local button = Instance.new("TextButton", frame)
+        button.Size = UDim2.new(0, 100, 0, 50)
+        button.Position = UDim2.new(0.5, -50, 0.3, 0)
+        button.Text = "Set Speed"
+        button.TextSize = 15
+        button.BackgroundColor3 = Color3.fromRGB(100, 100, 255)
+
+        local noclipButton = Instance.new("TextButton", frame)
+        noclipButton.Size = UDim2.new(0, 100, 0, 50)
+        noclipButton.Position = UDim2.new(0.5, -50, 0.5, 0)
+        noclipButton.Text = "Noclip"
+        noclipButton.TextSize = 20
+        noclipButton.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+         
+        local highlightButton = Instance.new("TextButton", frame)
+        highlightButton.Size = UDim2.new(0, 100, 0, 50)
+        highlightButton.Position = UDim2.new(0.5, -50, 0.7, 0)
+        highlightButton.Text = "ESP"
+        highlightButton.TextSize = 20
+        highlightButton.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
+         
+        local minimizeButton = Instance.new("TextButton", frame)
+        minimizeButton.Size = UDim2.new(0, 50, 0, 30)
+        minimizeButton.Position = UDim2.new(0.5, -25, 0, 0)
+        minimizeButton.Text = "-"
+        minimizeButton.TextSize = 20
+        minimizeButton.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
+         
+        local isMinimized = false
+        local madeByLabel
+         
+        local function toggleMinimize()
+            isMinimized = not isMinimized
+         
+            if isMinimized then
+               
+                local minimizeTween = TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 50, 0, 50)})
+                minimizeTween:Play()
+                textBox.Visible = false
+                button.Visible = false
+                noclipButton.Visible = false
+                highlightButton.Visible = false
+         
+        
+                if madeByLabel then
+                    local hideLabelTween = TweenService:Create(madeByLabel, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 1})
+                    hideLabelTween:Play()
+                    wait(0.5)  
+                    madeByLabel.Visible = false
+                end
+            else
+
+                local restoreTween = TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 200, 0, 300)})
+                restoreTween:Play()
+                textBox.Visible = true
+                button.Visible = true
+                noclipButton.Visible = true
+                highlightButton.Visible = true
+         
+                if madeByLabel then
+                    madeByLabel.Visible = true
+                    local showLabelTween = TweenService:Create(madeByLabel, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 0})
+                    showLabelTween:Play()
+                end
+            end
+        end
+         
+        minimizeButton.MouseButton1Click:Connect(toggleMinimize)
+         
+        local function setSpeed()
+            local speed = tonumber(textBox.Text)
+            if speed and speed > 0 then
+                local character = player.Character or player.CharacterAdded:Wait()
+                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.WalkSpeed = speed
+                end
+            else
+                warn("Invalid speed value!")
+            end
+        end
+
+        local noclip = false
+        local function toggleNoclip()
+            noclip = not noclip  
+            local character = player.Character or player.CharacterAdded:Wait()
+         
+            
+            StarterGui:SetCore("SendNotification", {
+                Title = "Noclip Status",
+                Text = noclip and "Noclip is enabled" or "Noclip is disabled",
+                Duration = 3,
+            })
+         
+            game:GetService("RunService").Stepped:Connect(function()
+                if noclip then
+                    -- Enable noclip (pass through walls)
+                    for _, part in pairs(character:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            part.CanCollide = false  
+                        end
+                    end
+                else
+                    
+                    for _, part in pairs(character:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            part.CanCollide = true 
+                        end
+                    end
+                end
+            end)
+        end
+         
+        local client = game.Players.LocalPlayer
+        local highlightingEnabled = false  
+         
+        local function highlightPlayers()
+            for _, plr in pairs(game.Players:GetPlayers()) do
+            
+                if plr == client then continue end
+         
+                local char = plr.Character
+                if char then
+                    local highlightObject = char:FindFirstChild("TEAM HIGHLIGHTER")
+                    if highlightingEnabled then
+                        if not highlightObject then
+                            highlightObject = Instance.new("Highlight")
+                            highlightObject.Name = "TEAM HIGHLIGHTER"
+                            highlightObject.Parent = char
+                        end
+                        highlightObject.FillColor = plr.TeamColor.Color
+                        highlightObject.OutlineColor = plr.TeamColor.Color
+                        highlightObject.FillTransparency = 0.5
+                        highlightObject.OutlineTransparency = 0.5
+                    else
+                        if highlightObject then
+                            highlightObject:Destroy() 
+                        end
+                    end
+                end
+            end
+        end
+         
+        local function toggleHighlightPlayers()
+            highlightingEnabled = not highlightingEnabled  
+            highlightPlayers() 
+        end
+         
+        button.MouseButton1Click:Connect(setSpeed)
+        noclipButton.MouseButton1Click:Connect(toggleNoclip)  
+        highlightButton.MouseButton1Click:Connect(toggleHighlightPlayers)
+         
+        madeByLabel = Instance.new("TextLabel", frame)
+        madeByLabel.Size = UDim2.new(1, 0, 0, 30)
+        madeByLabel.Position = UDim2.new(0, 0, 1, -30)
+        madeByLabel.Text = "Made by Kaan"
+        madeByLabel.TextSize = 15
+        madeByLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        madeByLabel.BackgroundTransparency = 1
+        madeByLabel.Visible = true  
   	end    
 })
 MiscTab:AddLabel("To Turn Flux gui type Launch Test Gui")
