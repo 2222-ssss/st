@@ -1004,72 +1004,6 @@ GlobalTab:AddToggle({
         end
     end
 })
-GlobalTab:AddLabel("Change AntiAnvil")
-
-GlobalTab:AddDropdown({
-    Name = "AntiAnvil Options",
-    Default = "AntiAnvilV2",
-    Options = {"AntiAnvilV2", "AntiAnvil (Fix)", "AntiAnvil (Test)", "AntiAnvil (TpVoid)", "AntiAnvil (Destroys)"},
-    Callback = function(Value)
-        if Value == "AntiAnvilV2" then
-            antiAnvil("v2")
-        elseif Value == "AntiAnvil (Fix)" then
-            antiAnvil("fix")
-        elseif Value == "AntiAnvil (Test)" then
-            antiAnvil("method1")
-        elseif Value == "AntiAnvil (TpVoid)" then
-            antiAnvil("method2")
-        elseif Value == "AntiAnvil (Destroys)" then
-            antiAnvil("method3")
-        end
-    end
-})
-
-GlobalTab:AddToggle({
-    Name = "Enable AntiAnvil",
-    Default = false,
-    Callback = function(state)
-        if state then
-            antiAnvil("enable")
-        else
-            antiAnvil("disable")
-        end
-    end
-})
-
-function antiAnvil(method)
-    local plrs = game:GetService("Players")
-
-    for _,v in next,plrs:GetPlayers() do
-        pcall(function()
-            if v.Character and v.Character:FindFirstChild("Anvil") then
-                if method == "v2" then
-                    v.Character.Anvil.send:FireServer(CFrame.new(math.huge, math.huge, math.huge))
-                elseif method == "fix" then
-                    v.Character.Anvil:Destroy()
-                elseif method == "method1" then
-                    v.Character.Anvil.CFrame = CFrame.new(0, 5000, 0)
-                elseif method == "method2" then
-                    v.Character.Anvil.CFrame = CFrame.new(math.huge, 0, math.huge)
-                elseif method == "method3" then
-                    v.Character.Anvil.Anchored = true
-                    v.Character.Anvil.CFrame = CFrame.new(0, 1000, 0)
-                end
-            end
-        end)
-    end
-end
-
-game:GetService("RunService").Heartbeat:Connect(function()
-    local plrs = game:GetService("Players")
-    for _,v in next,plrs:GetPlayers() do
-        pcall(function()
-            if v.Character and v.Character:FindFirstChild("Anvil") then
-                antiAnvil("enable")
-            end
-        end)
-    end
-end)
 
 GlobalTab:AddToggle({
     Name = "BigJacket", 
@@ -1102,6 +1036,8 @@ GlobalTab:AddToggle({
         end
     end
 })
+
+
 
 local OptionsTab = Window:MakeTab({
     Name = "Options", 
