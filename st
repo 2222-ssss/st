@@ -1,4 +1,14 @@
-local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/KaanOnly/tes/refs/heads/main/test'))()
+local link = string.char(
+    104, 116, 116, 112, 115, 58, 47, 47, 114, 97, 119, 46, 
+    103, 105, 116, 104, 117, 98, 117, 115, 101, 114, 99, 
+    111, 110, 116, 101, 110, 116, 46, 99, 111, 109, 47, 
+    75, 97, 97, 110, 79, 110, 108, 121, 47, 116, 101, 115, 
+    47, 114, 101, 102, 115, 47, 104, 101, 97, 100, 115, 
+    47, 109, 97, 105, 110, 47, 116, 101, 115, 116
+)
+
+local OrionLib = loadstring(game:HttpGet(link))()
+
 
 local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
 
