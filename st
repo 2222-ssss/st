@@ -1,27 +1,4 @@
-local plrs = game:GetService'Players'
-local plr = plrs.LocalPlayer
-local LoopFlingV1 = {}
-local LoopFlingV2 = {}
 
-
-local function findplr(Target)
-	if game:GetService'Players':FindFirstChild(Target) then
-		return game:GetService'Players':FindFirstChild(Target)
-	else
-		if Target ~= nil and Target ~= "" and Target ~= " " and Target then
-			local name = Target
-			local found = false
-			for _,v in pairs(game:GetService'Players':GetPlayers()) do
-				if not found and (v.Name:lower():sub(1,#name) == name:lower() or v.DisplayName:lower():sub(1,#name) == name:lower()) then
-					name = v
-					found = true
-				end
-			end
-			if name ~= nil and name ~= Target then
-				return name
-			end
-		end
-	end
 
 local KGui = Instance.new("ScreenGui")
 local M2 = Instance.new("Frame")
@@ -659,7 +636,7 @@ SS05.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
 -- Scripts:
 
-local function UYCQAGI_script() -- AN1.SCR1 
+local function EAMIRAG_script() -- AN1.SCR1 
 	local script = Instance.new('Script', AN1)
 
 	local tafling = false
@@ -726,8 +703,8 @@ local function UYCQAGI_script() -- AN1.SCR1
 	end)
 	
 end
-coroutine.wrap(UYCQAGI_script)()
-local function RNDWTX_script() -- AN2.SCR2 
+coroutine.wrap(EAMIRAG_script)()
+local function UYUMRCI_script() -- AN2.SCR2 
 	local script = Instance.new('Script', AN2)
 
 	local Players = game:GetService("Players")
@@ -764,8 +741,8 @@ local function RNDWTX_script() -- AN2.SCR2
 	end)
 	
 end
-coroutine.wrap(RNDWTX_script)()
-local function SGNZW_script() -- AN3.SCR3 
+coroutine.wrap(UYUMRCI_script)()
+local function USQI_script() -- AN3.SCR3 
 	local script = Instance.new('Script', AN3)
 
 	local t2 = false
@@ -788,8 +765,8 @@ local function SGNZW_script() -- AN3.SCR3
 	end)
 	
 end
-coroutine.wrap(SGNZW_script)()
-local function RSJZPS_script() -- AN4.SCR4 
+coroutine.wrap(USQI_script)()
+local function LQIE_script() -- AN4.SCR4 
 	local script = Instance.new('Script', AN4)
 
 	local t3 = false
@@ -823,8 +800,8 @@ local function RSJZPS_script() -- AN4.SCR4
 	end)
 	
 end
-coroutine.wrap(RSJZPS_script)()
-local function JNWEORM_script() -- AN5.SCR5 
+coroutine.wrap(LQIE_script)()
+local function IMKCR_script() -- AN5.SCR5 
 	local script = Instance.new('Script', AN5)
 
 	local t4 = false
@@ -868,8 +845,8 @@ local function JNWEORM_script() -- AN5.SCR5
 	end)
 	
 end
-coroutine.wrap(JNWEORM_script)()
-local function MEXVKU_script() -- AN6.SCR6 
+coroutine.wrap(IMKCR_script)()
+local function XXHR_script() -- AN6.SCR6 
 	local script = Instance.new('Script', AN6)
 
 	local plr = game.Players.LocalPlayer
@@ -932,8 +909,8 @@ local function MEXVKU_script() -- AN6.SCR6
 	end)
 	
 end
-coroutine.wrap(MEXVKU_script)()
-local function YLMPEY_script() -- AN7.SCR7 
+coroutine.wrap(XXHR_script)()
+local function QBPBIU_script() -- AN7.SCR7 
 	local script = Instance.new('Script', AN7)
 
 	local t6 = false
@@ -946,8 +923,8 @@ local function YLMPEY_script() -- AN7.SCR7
 		end
 	end)
 end
-coroutine.wrap(YLMPEY_script)()
-local function XLWXO_script() -- AN8.SCR8 
+coroutine.wrap(QBPBIU_script)()
+local function TCYB_script() -- AN8.SCR8 
 	local script = Instance.new('Script', AN8)
 
 	local t7 = false
@@ -960,8 +937,8 @@ local function XLWXO_script() -- AN8.SCR8
 		end
 	end)
 end
-coroutine.wrap(XLWXO_script)()
-local function ACAWIR_script() -- AN9.SCR9 
+coroutine.wrap(TCYB_script)()
+local function IQXDFCD_script() -- AN9.SCR9 
 	local script = Instance.new('Script', AN9)
 
 	local t8 = false
@@ -974,14 +951,14 @@ local function ACAWIR_script() -- AN9.SCR9
 		end
 	end)
 end
-coroutine.wrap(ACAWIR_script)()
-local function NLFDE_script() -- AN01.SCR9 
+coroutine.wrap(IQXDFCD_script)()
+local function KYUTVN_script() -- AN01.SCR9 
 	local script = Instance.new('Script', AN01)
 
 	-- make here a script that clears loopflings
 end
-coroutine.wrap(NLFDE_script)()
-local function HARJ_script() -- AN11.SCR11 
+coroutine.wrap(KYUTVN_script)()
+local function HJPDRU_script() -- AN11.SCR11 
 	local script = Instance.new('Script', AN11)
 
 	local t10 = false
@@ -994,8 +971,8 @@ local function HARJ_script() -- AN11.SCR11
 		end
 	end)
 end
-coroutine.wrap(HARJ_script)()
-local function SUNR_script() -- AN12.SCR12 
+coroutine.wrap(HJPDRU_script)()
+local function QHYUB_script() -- AN12.SCR12 
 	local script = Instance.new('Script', AN12)
 
 	local t11 = false
@@ -1008,14 +985,14 @@ local function SUNR_script() -- AN12.SCR12
 		end
 	end)
 end
-coroutine.wrap(SUNR_script)()
-local function KBAS_script() -- AN02.SCS09 
+coroutine.wrap(QHYUB_script)()
+local function IZTA_script() -- AN02.SCS09 
 	local script = Instance.new('Script', AN02)
 
 	-- make here a script that clears loopflings
 end
-coroutine.wrap(KBAS_script)()
-local function HUIACE_script() -- AN10.SCR10 
+coroutine.wrap(IZTA_script)()
+local function OFBZ_script() -- AN10.SCR10 
 	local script = Instance.new('Script', AN10)
 
 	local t9 = false
@@ -1028,69 +1005,4 @@ local function HUIACE_script() -- AN10.SCR10
 		end
 	end)
 end
-coroutine.wrap(HUIACE_script)()
-local function IIBONL_script() -- B1.BS1 
-	local script = Instance.new('Script', B1)
-
-	local function findplr(Target)
-		if Target and Target:match("%S") then
-			local players = game:GetService("Players")
-			local exact = players:FindFirstChild(Target)
-			if exact then return exact end
-	
-			local name = Target:lower()
-			for _, v in pairs(players:GetPlayers()) do
-				if v.Name:lower():sub(1, #name) == name or v.DisplayName:lower():sub(1, #name) == name then
-					return v
-				end
-			end
-		end
-	end
-	
-	B1.FocusLost:Connect(function()
-		pcall(function()
-			local tar = findplr(B1.Text)
-			if not tar or not tar.Character then return end
-	
-			local accs = tar.Character:FindFirstChildOfClass("Accessory")
-			local vec = Vector3.new(8.99999981e+37, -8.99999981e+37, 8.99999981e+37)
-	
-			if accs then
-				local handle = accs:FindFirstChild("Handle")
-				local partToUse = handle or (accs:IsA("BasePart") and accs)
-				if partToUse then
-					plr.Character.Picking:FireServer(partToUse, vec)
-					wait(0.1)
-					plr.Character.PuttingDown:FireServer()
-				end
-			else
-				plr.Character.Picking:FireServer(tar.Character:FindFirstChild("HumanoidRootPart"), Vector3.new(9e37, -9e37, 9e37))
-				wait(0.1)
-				plr.Character.PuttingDown:FireServer()
-			end
-		end)
-		B1.Text = "Fling"
-	end)
-	
-end
-coroutine.wrap(IIBONL_script)()
-local function ASWLI_script() -- B2.Twst 
-	local script = Instance.new('Script', B2)
-
-	B2.FocusLost:Connect(function()
-		pcall(function()
-			findplr(B2.Text).Character.ArmAngleChange:FireServer(CFrame.new(9999, -999, 999))
-		end)
-		B2.Text = 'Fling v2'
-	end)
-	
-	B2.FocusLost:Connect(function()
-		local tar = findplr(B2.Text)
-		if tar and not LoopFlingV2[tar.Name] then
-			LoopFlingV2[tar.Name] = tar
-		end
-		B2.Text = 'Loop Fling v2'
-	end)
-	
-end
-coroutine.wrap(ASWLI_script)()
+coroutine.wrap(OFBZ_script)()
